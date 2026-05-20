@@ -59,4 +59,37 @@ public class UserController {
         }
         return Result.ok();
     }
+
+    @PutMapping("/update")
+    public Result updateProfile(@RequestBody Map<String, String> body, HttpServletRequest req) {
+        String userId = (String) req.getAttribute("userId");
+        int permission = (int) req.getAttribute("permission");
+        boolean ok = userService.updateProfile(userId, permission, body);
+        return ok ? Result.ok() : Result.error(400, "修改失败");
+    }
+
+    @GetMapping("/list")
+    public Result listUsers(@RequestParam(defaultValue = "1") int permission,
+                            @RequestParam(required = false) String keyword,
+                            @RequestParam(defaultValue = "1") int page,
+                            @RequestParam(defaultValue = "10") int pageSize,
+                            HttpServletRequest req) {
+        int adminPermission = (int) req.getAttribute("permission");
+        if (adminPermission != 3) {
+            return Result.error(403, "无权操作");
+        }
+        return Result.ok(userService.listUsers(permission, keyword, page, pageSize));
+    }
+
+    @DeleteMapping("/delete/{userId}")
+    public Result deleteUser(@PathVariable String userId,
+                             @RequestParam int permission,
+                             HttpServletRequest req) {
+        int adminPermission = (int) req.getAttribute("permission");
+        if (adminPermission != 3) {
+            return Result.error(403, "无权操作");
+        }
+        boolean ok = userService.deleteUser(userId, permission);
+        return ok ? Result.ok() : Result.error(500, "删除失败");
+    }
 }

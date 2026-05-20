@@ -65,4 +65,20 @@ public class ActivityController {
         boolean ok = activityService.review(id, state);
         return ok ? Result.ok() : Result.error(500, "审核失败");
     }
+
+    @PutMapping("/update/{id}")
+    public Result update(@PathVariable int id, @RequestBody Activity act, HttpServletRequest req) {
+        String userId = (String) req.getAttribute("userId");
+        act.setActivityId(id);
+        boolean ok = activityService.update(act, userId);
+        return ok ? Result.ok() : Result.error(403, "无权修改此活动");
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public Result delete(@PathVariable int id, HttpServletRequest req) {
+        String userId = (String) req.getAttribute("userId");
+        int permission = (int) req.getAttribute("permission");
+        boolean ok = activityService.delete(id, userId, permission);
+        return ok ? Result.ok() : Result.error(403, "无权删除此活动");
+    }
 }

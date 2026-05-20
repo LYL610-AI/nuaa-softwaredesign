@@ -36,6 +36,23 @@ public class ActivityService {
         return activityDao.review(activityId, auditState);
     }
 
+    public boolean update(Activity act, String userId) {
+        Activity existing = activityDao.detail(act.getActivityId());
+        if (existing == null || !existing.getUserId().equals(userId)) {
+            return false;
+        }
+        return activityDao.update(act);
+    }
+
+    public boolean delete(int activityId, String userId, int permission) {
+        Activity existing = activityDao.detail(activityId);
+        if (existing == null) return false;
+        if (!existing.getUserId().equals(userId) && permission != 3) {
+            return false;
+        }
+        return activityDao.delete(activityId);
+    }
+
     public List<Activity> myActivities(String userId) {
         return activityDao.myActivities(userId);
     }

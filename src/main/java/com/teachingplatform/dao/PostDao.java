@@ -71,6 +71,11 @@ public class PostDao {
         return jdbc.update(sql, auditState, postId) > 0;
     }
 
+    public boolean update(Post p) {
+        String sql = "UPDATE post SET title = ?, content = ? WHERE post_id = ?";
+        return jdbc.update(sql, p.getTitle(), p.getContent(), p.getPostId()) > 0;
+    }
+
     public List<Post> myPosts(int userId) {
         String sql = "SELECT p.*, COALESCE(v.user_identity, s.principle) as author_name, act.title as activity_title, " +
                      "(SELECT COUNT(*) FROM comment c WHERE c.post_id = p.post_id) as comment_count " +

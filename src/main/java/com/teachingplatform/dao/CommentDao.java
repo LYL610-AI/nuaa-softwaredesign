@@ -15,6 +15,12 @@ public class CommentDao {
         this.jdbc = jdbc;
     }
 
+    public Comment findById(int commentId) {
+        String sql = "SELECT * FROM comment WHERE comment_id = ?";
+        List<Comment> list = jdbc.query(sql, (rs, rowNum) -> mapComment(rs), commentId);
+        return list.isEmpty() ? null : list.get(0);
+    }
+
     public List<Comment> listByPost(int postId) {
         String sql = "SELECT c.*, COALESCE(v.user_identity, s.principle, a.user_id) as author_name FROM comment c " +
                      "LEFT JOIN volunteer_user v ON c.user_id = v.user_id " +
@@ -27,6 +33,11 @@ public class CommentDao {
     public boolean create(Comment c) {
         String sql = "INSERT INTO comment (content, publish_time, post_id, user_id) VALUES (?, NOW(), ?, ?)";
         return jdbc.update(sql, c.getContent(), c.getPostId(), c.getUserId()) > 0;
+    }
+
+    public boolean update(Comment c) {
+        String sql = "UPDATE comment SET content = ? WHERE comment_id = ?";
+        return jdbc.update(sql, c.getContent(), c.getCommentId()) > 0;
     }
 
     public boolean delete(int commentId) {

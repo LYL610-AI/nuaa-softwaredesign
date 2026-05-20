@@ -113,4 +113,56 @@ public class UserDao {
         String sql = "UPDATE " + table + " SET user_password = ? WHERE user_id = ? AND user_password = ?";
         return jdbc.update(sql, hashPassword(newPwd), userId, hashPassword(oldPwd)) > 0;
     }
+
+    public boolean updateVolunteer(VolunteerUser vu) {
+        String sql = "UPDATE volunteer_user SET user_identity = ?, user_sex = ?, user_edu = ?, user_phone = ? WHERE user_id = ?";
+        return jdbc.update(sql, vu.getUserIdentity(), vu.getUserSex(), vu.getUserEdu(), vu.getUserPhone(), vu.getUserId()) > 0;
+    }
+
+    public boolean updateSchool(SchoolUser su) {
+        String sql = "UPDATE school_user SET type = ?, address = ?, license = ?, principle = ?, user_phone = ? WHERE user_id = ?";
+        return jdbc.update(sql, su.getType(), su.getAddress(), su.getLicense(), su.getPrinciple(), su.getUserPhone(), su.getUserId()) > 0;
+    }
+
+    public List<Map<String, Object>> listUsers(int permission, String keyword, int page, int pageSize) {
+        String table;
+        if (permission == 1) table = "volunteer_user";
+        else if (permission == 2) table = "school_user";
+        else table = "administrator";
+
+        StringBuilder sql = new StringBuilder("SELECT * FROM " + table + " WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append(" AND user_id LIKE ?");
+            params.add("%" + keyword + "%");
+        }
+        sql.append(" ORDER BY register_time DESC LIMIT ?, ?");
+        params.add((page - 1) * pageSize);
+        params.add(pageSize);
+        return jdbc.queryForList(sql.toString(), params.toArray());
+    }
+
+    public int countUsers(int permission, String keyword) {
+        String table;
+        if (permission == 1) table = "volunteer_user";
+        else if (permission == 2) table = "school_user";
+        else table = "administrator";
+
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM " + table + " WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+        if (keyword != null && !keyword.isEmpty()) {
+            sql.append(" AND user_id LIKE ?");
+            params.add("%" + keyword + "%");
+        }
+        Integer count = jdbc.queryForObject(sql.toString(), Integer.class, params.toArray());
+        return count != null ? count : 0;
+    }
+
+    public boolean deleteUser(String userId, int permission) {
+        String table;
+        if (permission == 1) table = "volunteer_user";
+        else if (permission == 2) table = "school_user";
+        else table = "administrator";
+        return jdbc.update("DELETE FROM " + table + " WHERE user_id = ?", userId) > 0;
+    }
 }

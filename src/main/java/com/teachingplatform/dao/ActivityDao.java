@@ -71,6 +71,15 @@ public class ActivityDao {
         return jdbc.update(sql, auditState, activityId) > 0;
     }
 
+    public boolean update(Activity act) {
+        String sql = "UPDATE activity SET title = ?, content = ?, recruits_number = ?, volunteer_duration = ? WHERE activity_id = ?";
+        return jdbc.update(sql, act.getTitle(), act.getContent(), act.getRecruitsNumber(), act.getVolunteerDuration(), act.getActivityId()) > 0;
+    }
+
+    public boolean delete(int activityId) {
+        return jdbc.update("DELETE FROM activity WHERE activity_id = ?", activityId) > 0;
+    }
+
     public List<Activity> myActivities(String userId) {
         String sql = "SELECT a.*, s.principle as school_name FROM activity a LEFT JOIN school_user s ON a.user_id = s.user_id WHERE a.user_id = ? ORDER BY a.publish_time DESC";
         return jdbc.query(sql, (rs, rowNum) -> mapActivity(rs), userId);

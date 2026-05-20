@@ -162,7 +162,20 @@ function initHeader() {
   `;
 }
 
+// ===== 密码可见切换 =====
+function initPasswordToggles() {
+  document.querySelectorAll('.password-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = btn.parentElement.querySelector('input');
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      btn.innerHTML = isPassword ? '&#x1F440;' : '&#x1F441;';
+    });
+  });
+}
+
 // ===== 页面初始化 =====
 document.addEventListener('DOMContentLoaded', () => {
   initHeader();
+  initPasswordToggles();
 });

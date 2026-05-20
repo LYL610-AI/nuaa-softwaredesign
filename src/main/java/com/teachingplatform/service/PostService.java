@@ -35,6 +35,14 @@ public class PostService {
         return postDao.review(postId, auditState);
     }
 
+    public boolean update(Post p, int userId) {
+        Post existing = postDao.detail(p.getPostId());
+        if (existing == null || existing.getUserId() != userId) {
+            return false;
+        }
+        return postDao.update(p);
+    }
+
     public List<Post> myPosts(int userId) {
         return postDao.myPosts(userId);
     }

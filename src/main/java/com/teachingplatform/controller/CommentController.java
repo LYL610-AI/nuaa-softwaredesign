@@ -28,6 +28,14 @@ public class CommentController {
         return ok ? Result.ok() : Result.error(500, "评论失败");
     }
 
+    @PutMapping("/update/{id}")
+    public Result update(@PathVariable int id, @RequestBody Comment c, HttpServletRequest req) {
+        String userIdStr = (String) req.getAttribute("userId");
+        c.setCommentId(id);
+        boolean ok = service.update(c, Integer.parseInt(userIdStr));
+        return ok ? Result.ok() : Result.error(403, "无权修改此评论");
+    }
+
     @DeleteMapping("/delete/{id}")
     public Result delete(@PathVariable int id) {
         boolean ok = service.delete(id);

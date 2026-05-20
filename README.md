@@ -2,7 +2,7 @@
 
 基于 Web 的支教活动全流程管理平台，连接支教学校与志愿者，支持活动发布、报名审核、社区互动等功能。
 
-**技术栈**：HTML5 + CSS3 + JavaScript（前端）/ Spring Boot 3.2 + JdbcTemplate（后端）/ MySQL 8.0（数据库）/ 内嵌 Tomcat（部署）
+**技术栈**：HTML5 + CSS3 + JavaScript（前端）/ Spring Boot 3.2.5 + JdbcTemplate（后端）/ MySQL 8.0（数据库）/ 内嵌 Tomcat（部署）
 
 ---
 
@@ -66,7 +66,6 @@
 ```
 web设计/
 ├── pom.xml                                    # Maven 依赖管理
-├── sql.txt                                    # 数据库建表脚本
 ├── README.md                                  # 项目说明
 ├── src/main/java/com/teachingplatform/
 │   ├── TeachingPlatformApplication.java       # Spring Boot 启动入口
@@ -93,7 +92,7 @@ web设计/
 │       ├── js/
 │       │   ├── api.js                         # API 请求封装
 │       │   └── main.js                        # 公共工具函数
-│       └── pages/                             # 页面（7个）
+│       └── pages/                             # 页面（8个）
 └── target/
     └── teaching-platform-1.0.0.jar            # 可执行 JAR 包
 ```
@@ -206,21 +205,22 @@ web设计/
 | 用户 | POST | `/api/user/login` | 登录 | 公开 |
 | 用户 | POST | `/api/user/register` | 注册 | 公开 |
 | 用户 | GET | `/api/user/info` | 获取当前用户信息 | 登录 |
-| 用户 | PUT | `/api/user/update` | 修改个人信息 | 登录 |
 | 用户 | PUT | `/api/user/password` | 修改密码 | 登录 |
 | 活动 | GET | `/api/activity/list` | 活动列表（支持 ?keyword=&region=&state=&page=&pageSize=） | 公开 |
 | 活动 | GET | `/api/activity/detail/:id` | 活动详情 | 公开 |
+| 活动 | GET | `/api/activity/my` | 我的活动列表 | 学校 |
 | 活动 | POST | `/api/activity/create` | 发布活动 | 学校 |
-| 活动 | PUT | `/api/activity/update/:id` | 编辑活动 | 学校(发布者) |
 | 活动 | PUT | `/api/activity/review/:id` | 审核活动 | 管理员 |
-| 活动 | POST | `/api/activity/summary/:id` | 提交活动总结 | 学校(发布者) |
 | 活动 | PUT | `/api/activity/summary/review/:id` | 审核活动总结 | 管理员 |
+| 报名 | GET | `/api/registration/my` | 我的报名列表 | 志愿者 |
+| 报名 | GET | `/api/registration/list/all` | 全部报名列表（支持 ?auditState=&page=&pageSize=） | 管理员 |
+| 报名 | GET | `/api/registration/list/:activityId` | 查看活动报名列表 | 学校(发布者) |
 | 报名 | POST | `/api/registration/submit` | 提交报名 | 志愿者 |
 | 报名 | DELETE | `/api/registration/cancel/:id` | 取消报名 | 志愿者(本人) |
-| 报名 | GET | `/api/registration/list/:activityId` | 查看报名列表 | 学校(发布者) |
 | 报名 | PUT | `/api/registration/review/:id` | 审核报名 | 学校 |
-| 帖子 | GET | `/api/post/list` | 帖子列表（?activityId=） | 公开 |
+| 帖子 | GET | `/api/post/list` | 帖子列表（支持 ?activityId=&auditState=&page=&pageSize=） | 公开 |
 | 帖子 | GET | `/api/post/detail/:id` | 帖子详情 | 公开 |
+| 帖子 | GET | `/api/post/my` | 我的帖子列表 | 登录 |
 | 帖子 | POST | `/api/post/create` | 发布帖子 | 登录 |
 | 帖子 | DELETE | `/api/post/delete/:id` | 删除帖子 | 发布者/管理员 |
 | 帖子 | PUT | `/api/post/review/:id` | 审核帖子 | 管理员 |
@@ -260,8 +260,8 @@ mvn clean package -DskipTests
 # 3. 上传 JAR 到服务器
 scp target/teaching-platform-1.0.0.jar root@服务器IP:/www/wwwroot/
 
-# 4. 服务器上导入数据库
-mysql -u root -p < sql.txt
+# 4. 创建数据库（默认库名 software_design）并按第五节表结构建表
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS software_design DEFAULT CHARSET utf8mb4"
 
 # 5. 启动
 java -jar /www/wwwroot/teaching-platform-1.0.0.jar &

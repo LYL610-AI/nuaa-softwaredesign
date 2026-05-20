@@ -57,4 +57,12 @@ public class PostController {
         boolean ok = service.review(id, state);
         return ok ? Result.ok() : Result.error(500, "审核失败");
     }
+
+    @PutMapping("/update/{id}")
+    public Result update(@PathVariable int id, @RequestBody Post p, HttpServletRequest req) {
+        String userIdStr = (String) req.getAttribute("userId");
+        p.setPostId(id);
+        boolean ok = service.update(p, Integer.parseInt(userIdStr));
+        return ok ? Result.ok() : Result.error(403, "无权修改此帖子");
+    }
 }

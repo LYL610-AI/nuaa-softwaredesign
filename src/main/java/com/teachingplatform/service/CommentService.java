@@ -23,6 +23,14 @@ public class CommentService {
         return commentDao.create(c);
     }
 
+    public boolean update(Comment c, int userId) {
+        Comment existing = commentDao.findById(c.getCommentId());
+        if (existing == null || existing.getUserId() != userId) {
+            return false;
+        }
+        return commentDao.update(c);
+    }
+
     public boolean delete(int commentId) {
         return commentDao.delete(commentId);
     }
