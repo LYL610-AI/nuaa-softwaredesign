@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>发布支教活动 - 支教信息发布平台</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/api.js"></script>
+</head>
+<body>
+
+<div id="header-placeholder"></div>
+
+<main class="main">
+  <a href="../index.html" style="font-size:14px;color:var(--primary);display:inline-block;margin-bottom:20px;">&larr; 返回首页</a>
+
+  <div class="card" style="max-width:760px;">
+    <div class="card-header">
+      <h2 class="card-title">发布支教招募信息</h2>
+    </div>
+
+    <form id="publishForm">
+      <div class="form-group">
+        <label for="title">活动标题 <span style="color:var(--danger);">*</span></label>
+        <input type="text" id="title" class="form-input" placeholder="请输入活动标题（100字以内）" required maxlength="100">
+      </div>
+
+      <div class="form-group">
+        <label for="content">活动内容 <span style="color:var(--danger);">*</span></label>
+        <textarea id="content" class="form-input" rows="6" placeholder="请详细描述支教活动内容、教学目标、课程安排等" required></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="recruitsNumber">招募人数 <span style="color:var(--danger);">*</span></label>
+          <input type="number" id="recruitsNumber" class="form-input" placeholder="请输入招募人数" required min="1" value="5">
+        </div>
+        <div class="form-group">
+          <label for="volunteerDuration">志愿时长（小时）</label>
+          <input type="number" id="volunteerDuration" class="form-input" placeholder="预计志愿时长" min="1" value="40">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="address">活动地址 <span style="color:var(--danger);">*</span></label>
+        <input type="text" id="address" class="form-input" placeholder="省/市/县/镇/乡" required>
+      </div>
+
+      <div class="form-group" style="margin-top:28px;">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:400;">
+          <input type="checkbox" id="confirmInfo"> 我确认以上信息真实有效，提交后将由管理员审核
+        </label>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:24px;">
+        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" disabled>提交审核</button>
+        <button type="button" class="btn btn-outline btn-lg" onclick="saveDraft()">保存草稿</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- 我发布的活动列表 -->
+  <div class="card" style="margin-top:24px;max-width:760px;">
+    <div class="card-header">
+      <h3 class="card-title">我发布的活动</h3>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>标题</th><th>招募人数</th><th>活动状态</th><th>审核状态</th><th>发布时间</th><th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="myActivities">
+          <tr>
+            <td>凉山州昭觉县小学暑期支教</td>
+            <td>12</td>
+            <td><span class="tag tag-recruiting">招募中</span></td>
+            <td><span class="tag tag-approved">审核通过</span></td>
+            <td>2026-05-10</td>
+            <td>
+              <div class="action-group">
+                <button class="btn btn-outline btn-sm" onclick="showToast('编辑功能暂未开放', 'warning')">编辑</button>
+                <button class="btn btn-outline btn-sm" onclick="showToast('请提交活动总结', 'warning')">提交总结</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <p>&copy; 2026 支教信息发布平台 · 南京航空航天大学</p>
+</footer>
+
+<script src="../js/main.js"></script>
+<script src="../js/api.js"></script>
+<script>
+const stateMap = { '0': '招募中', '1': '进行中', '2': '已结束' };
+const stateClassMap = { '0': 'tag-recruiting', '1': 'tag-ongoing', '2': 'tag-ended' };
+const auditClassMap = { '0': 'tag-pending', '1': 'tag-approved', '2': 'tag-rejected' };
+const auditMap = { '0': '待审核', '1': '审核通过', '2': '未通过' };
+
+document.getElementById('confirmInfo').addEventListener('change', function() {
+  document.getElementById('submitBtn').disabled = !this.checked;
+});
+
+document.getElementById('publishForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const title = document.getElementById('title').value.trim();
+  const content = document.getElementById('content').value.trim();
+
+  if (!title || !content) {
+    showToast('请填写完整信息', 'warning');
+    return;
+  }
+
+  try {
+    await activityApi.create({
+      title,
+      content,
+      recruitsNumber: parseInt(document.getElementById('recruitsNumber').value),
+      volunteerDuration: parseInt(document.getElementById('volunteerDuration').value),
+      address: document.getElementById('address').value.trim()
+    });
+    showToast('活动已提交，等待管理员审核', 'success');
+    setTimeout(() => { window.location.href = '../index.html'; }, 1500);
+  } catch (err) {
+    showToast(err.message || '发布失败', 'error');
+  }
+});
+
+function saveDraft() {
+  showToast('草稿已保存', 'success');
+}
+
+// 加载我发布的活动
+(async function loadMyActivities() {
+  try {
+    const result = await activityApi.list({ page: 1, pageSize: 50 });
+    const list = result.list || result;
+    const tbody = document.getElementById('myActivities');
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">暂无发布的活动</td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(act => `
+      <tr>
+        <td>${escHtml(act.title)}</td>
+        <td>${act.recruitsNumber}</td>
+        <td><span class="tag ${stateClassMap[act.activityState]}">${stateMap[act.activityState]}</span></td>
+        <td><span class="tag ${auditClassMap[act.auditState]}">${auditMap[act.auditState]}</span></td>
+        <td>${(act.publishTime || '').split(' ')[0]}</td>
+        <td>
+          <div class="action-group">
+            <button class="btn btn-outline btn-sm" onclick="showToast('编辑功能暂未开放', 'warning')">编辑</button>
+            <button class="btn btn-outline btn-sm" onclick="showToast('请提交活动总结', 'warning')">提交总结</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    // 后端未就绪时静默
+  }
+})();
+
+function escHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+</body>
+</html>

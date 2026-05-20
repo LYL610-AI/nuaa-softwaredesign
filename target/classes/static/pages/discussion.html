@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>讨论区 - 支教信息发布平台</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/api.js"></script>
+  <style>
+    .discussion-layout { display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
+    @media (max-width: 900px) { .discussion-layout { grid-template-columns: 1fr; } }
+    .activity-select-item {
+      padding: 12px 16px;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+    .activity-select-item:hover { background: var(--primary-bg); }
+    .activity-select-item.active { background: var(--primary-bg); color: var(--primary); font-weight: 500; }
+    .comment-input-area { display: flex; gap: 10px; margin-top: 20px; }
+    .comment-input-area input { flex: 1; }
+  </style>
+</head>
+<body>
+
+<div id="header-placeholder"></div>
+
+<main class="main">
+  <h1 class="page-title">讨论区</h1>
+
+  <div class="discussion-layout">
+
+    <!-- 左侧：帖子列表 -->
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h3 style="font-size:16px;">主题帖</h3>
+        <button class="btn btn-primary btn-sm" onclick="showCreatePost()">发布主题帖</button>
+      </div>
+
+      <div class="card" id="postList">
+        <!-- 帖子1 -->
+        <div class="post-item">
+          <h4 class="post-title" onclick="viewPost(1)">凉山支教回忆——那些难忘的日子</h4>
+          <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px;">
+            为期四周的凉山支教结束了，想和大家分享这段难忘的经历……
+          </p>
+          <div class="post-meta">
+            <span>&#128100; 张三（志愿者）</span>
+            <span>&#128197; 2026-05-15</span>
+            <span>&#128172; 3 条评论</span>
+            <span style="color:var(--primary);">关联：凉山州昭觉县小学暑期支教</span>
+          </div>
+        </div>
+
+        <!-- 帖子2 -->
+        <div class="post-item">
+          <h4 class="post-title" onclick="viewPost(2)">贵州支教的感动瞬间——孩子们的画</h4>
+          <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px;">
+            在黔东南支教期间，孩子们用画笔表达了对我们的感谢，每一幅画都是最珍贵的礼物……
+          </p>
+          <div class="post-meta">
+            <span>&#128100; 李四（志愿者）</span>
+            <span>&#128197; 2026-05-16</span>
+            <span>&#128172; 5 条评论</span>
+            <span style="color:var(--primary);">关联：贵州黔东南科普支教</span>
+          </div>
+        </div>
+
+        <!-- 帖子3 -->
+        <div class="post-item">
+          <h4 class="post-title" onclick="viewPost(3)">讨论：如何做好支教前的课程准备</h4>
+          <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px;">
+            作为一名新手支教志愿者，想请教大家如何做好课程准备工作……
+          </p>
+          <div class="post-meta">
+            <span>&#128100; 赵六（志愿者）</span>
+            <span>&#128197; 2026-05-17</span>
+            <span>&#128172; 7 条评论</span>
+            <span style="color:var(--primary);">关联：云南红河英语支教</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧：关联活动筛选 + 帖子详情 -->
+    <div>
+      <!-- 按活动筛选 -->
+      <div class="card" style="margin-bottom:20px;">
+        <h4 style="font-size:15px;margin-bottom:12px;">按活动筛选</h4>
+        <div id="activityFilter">
+          <div class="activity-select-item active" data-id="all">全部活动</div>
+          <div class="activity-select-item" data-id="1">凉山州昭觉县小学暑期支教</div>
+          <div class="activity-select-item" data-id="3">贵州黔东南科普支教</div>
+          <div class="activity-select-item" data-id="2">云南红河英语支教</div>
+          <div class="activity-select-item" data-id="5">青海玉树冬季助学支教</div>
+        </div>
+      </div>
+
+      <!-- 帖子详情（点击帖子后显示） -->
+      <div class="card" id="postDetail" style="display:none;">
+        <button style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:13px;margin-bottom:12px;"
+          onclick="closePostDetail()">&larr; 返回帖子列表</button>
+        <h3 id="detailTitle" style="margin-bottom:8px;"></h3>
+        <div class="post-meta" style="margin-bottom:14px;" id="detailMeta"></div>
+        <p style="line-height:1.8;color:var(--text-secondary);margin-bottom:20px;" id="detailContent"></p>
+
+        <h4 style="font-size:15px;margin-bottom:12px;">评论 (<span id="commentCount">0</span>)</h4>
+        <div id="commentList"></div>
+
+        <!-- 发表评论 -->
+        <div class="comment-input-area">
+          <input type="text" class="form-input" id="commentInput" placeholder="写下你的评论……">
+          <button class="btn btn-primary btn-sm" onclick="submitComment()">发表</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- 发布帖子弹窗 -->
+<div class="modal-overlay" id="createPostModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">发布主题帖</h3>
+      <button class="modal-close" onclick="document.getElementById('createPostModal').classList.remove('show')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="createPostForm">
+        <div class="form-group">
+          <label>关联活动 <span style="color:var(--danger);">*</span></label>
+          <select class="form-input" required>
+            <option value="">请选择已结束的支教活动</option>
+            <option value="5">青海玉树冬季助学支教（已结束）</option>
+            <option value="3">贵州黔东南科普支教（进行中）</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>帖子标题 <span style="color:var(--danger);">*</span></label>
+          <input type="text" class="form-input" placeholder="请输入帖子标题" required maxlength="100">
+        </div>
+        <div class="form-group">
+          <label>帖子内容 <span style="color:var(--danger);">*</span></label>
+          <textarea class="form-input" rows="5" placeholder="请输入帖子内容" required></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="document.getElementById('createPostModal').classList.remove('show')">取消</button>
+      <button class="btn btn-primary" onclick="submitPost()">提交（等待管理员审核）</button>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <p>&copy; 2026 支教信息发布平台 · 南京航空航天大学</p>
+</footer>
+
+<script src="../js/main.js"></script>
+<script src="../js/api.js"></script>
+<script>
+let currentPostId = null;
+let allPosts = [];
+
+// 加载帖子列表
+async function loadPosts(activityId) {
+  const container = document.getElementById('postList');
+  container.innerHTML = '<div class="empty-state"><p>加载中……</p></div>';
+  try {
+    const params = activityId && activityId !== 'all' ? { activityId, auditState: '1' } : { auditState: '1' };
+    const result = await postApi.list(params);
+    allPosts = result.list || result || [];
+    if (!allPosts.length) {
+      container.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128221;</div><p>暂无主题帖</p></div>';
+      return;
+    }
+    container.innerHTML = allPosts.map(p => `
+      <div class="post-item">
+        <h4 class="post-title" onclick="viewPost(${p.postId})">${escHtml(p.title)}</h4>
+        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px;">
+          ${escHtml((p.content || '').substring(0, 80))}……
+        </p>
+        <div class="post-meta">
+          <span>&#128100; ${escHtml(p.authorName || '用户' + p.userId)}</span>
+          <span>&#128197; ${(p.publishTime || '').split(' ')[0]}</span>
+          <span>&#128172; ${p.commentCount || 0} 条评论</span>
+          <span style="color:var(--primary);">关联：${escHtml(p.activityTitle || '活动' + p.activityId)}</span>
+        </div>
+      </div>
+    `).join('');
+  } catch (err) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">&#9888;</div><p>加载失败</p></div>';
+  }
+}
+
+// 查看帖子详情 + 评论
+async function viewPost(postId) {
+  currentPostId = postId;
+  document.getElementById('postDetail').style.display = 'block';
+
+  try {
+    const p = await postApi.detail(postId);
+    document.getElementById('detailTitle').textContent = p.title;
+    document.getElementById('detailMeta').innerHTML = `
+      <span>&#128100; ${escHtml(p.authorName || '用户' + p.userId)}</span>
+      <span>&#128197; ${(p.publishTime || '').split(' ')[0]}</span>
+      <span style="color:var(--primary);">关联：${escHtml(p.activityTitle || '')}</span>
+    `;
+    document.getElementById('detailContent').textContent = p.content;
+
+    // 加载评论
+    const comments = await commentApi.list(postId);
+    document.getElementById('commentCount').textContent = comments.length;
+    document.getElementById('commentList').innerHTML = comments.map(c => `
+      <div class="comment-item">
+        <div class="comment-header">
+          <span class="comment-author">${escHtml(c.authorName || '用户' + c.userId)}</span>
+          <span class="comment-time">${c.publishTime}</span>
+        </div>
+        <div class="comment-content">${escHtml(c.content)}</div>
+        <div class="comment-actions">
+          <button onclick="deleteComment(${c.commentId})">删除</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (err) {
+    showToast('加载帖子详情失败', 'error');
+  }
+}
+
+function closePostDetail() {
+  document.getElementById('postDetail').style.display = 'none';
+  currentPostId = null;
+}
+
+async function submitComment() {
+  const input = document.getElementById('commentInput');
+  const content = input.value.trim();
+  if (!content) { showToast('请输入评论内容', 'warning'); return; }
+  if (!isLoggedIn()) { showToast('请先登录', 'warning'); return; }
+  try {
+    await commentApi.create({ postId: currentPostId, content });
+    showToast('评论发表成功', 'success');
+    input.value = '';
+    await viewPost(currentPostId);
+  } catch (err) {
+    showToast(err.message || '评论失败', 'error');
+  }
+}
+
+async function deleteComment(id) {
+  showModal('删除评论', '<p>确定要删除该评论吗？</p>', async () => {
+    try {
+      await commentApi.delete(id);
+      showToast('评论已删除', 'success');
+      await viewPost(currentPostId);
+    } catch (err) {
+      showToast(err.message || '删除失败', 'error');
+    }
+  });
+}
+
+function showCreatePost() {
+  if (!isLoggedIn()) {
+    showToast('请先登录', 'warning');
+    setTimeout(() => { window.location.href = 'login.html'; }, 1000);
+    return;
+  }
+  document.getElementById('createPostModal').classList.add('show');
+}
+
+async function submitPost() {
+  const form = document.getElementById('createPostForm');
+  const select = form.querySelector('select');
+  const title = form.querySelector('input').value.trim();
+  const content = form.querySelector('textarea').value.trim();
+  if (!select.value || !title || !content) { showToast('请填写完整信息', 'warning'); return; }
+  try {
+    await postApi.create({ activityId: parseInt(select.value), title, content });
+    document.getElementById('createPostModal').classList.remove('show');
+    showToast('帖子已提交，等待管理员审核', 'success');
+    await loadPosts();
+  } catch (err) {
+    showToast(err.message || '发布失败', 'error');
+  }
+}
+
+function escHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+document.getElementById('createPostModal').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('show');
+});
+
+// 活动筛选
+document.querySelectorAll('.activity-select-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.activity-select-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    loadPosts(item.dataset.id);
+  });
+});
+
+// 初始加载
+loadPosts();
+</script>
+</body>
+</html>

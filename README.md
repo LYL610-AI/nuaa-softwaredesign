@@ -2,7 +2,7 @@
 
 基于 Web 的支教活动全流程管理平台，连接支教学校与志愿者，支持活动发布、报名审核、社区互动等功能。
 
-**技术栈**：HTML5 + CSS3 + JavaScript（前端）/ Java Servlet + JDBC（后端）/ MySQL 8.0（数据库）/ Nginx + Tomcat（部署）
+**技术栈**：HTML5 + CSS3 + JavaScript（前端）/ Spring Boot 3.2 + JdbcTemplate（后端）/ MySQL 8.0（数据库）/ 内嵌 Tomcat（部署）
 
 ---
 
@@ -65,22 +65,37 @@
 
 ```
 web设计/
-├── index.html                     # 首页：活动列表 + 搜索 + 统计
-├── README.md                      # 项目说明文档
-├── 需求分析.txt                    # 原始需求文档
-├── 设计要求.txt                    # 设计提示词
-├── css/
-│   └── style.css                  # 全局样式（浅蓝主题）
-├── js/
-│   └── main.js                    # 公共工具：认证/导航/Toast/弹窗
-└── pages/
-    ├── login.html                 # 登录页（三角色切换）
-    ├── register.html              # 注册页（志愿者/学校双表单）
-    ├── activity-detail.html       # 活动详情 + 报名弹窗 + 审核列表
-    ├── publish-activity.html      # 发布支教活动
-    ├── personal-center.html       # 个人中心：报名/活动/帖子/安全
-    ├── admin-review.html          # 审核管理：活动/报名/帖子/总结
-    └── discussion.html            # 讨论区：帖子列表 + 评论 + 筛选
+├── pom.xml                                    # Maven 依赖管理
+├── sql.txt                                    # 数据库建表脚本
+├── README.md                                  # 项目说明
+├── src/main/java/com/teachingplatform/
+│   ├── TeachingPlatformApplication.java       # Spring Boot 启动入口
+│   ├── config/
+│   │   ├── CorsConfig.java                   # CORS 跨域配置
+│   │   └── WebConfig.java                    # 拦截器注册
+│   ├── interceptor/
+│   │   └── AuthInterceptor.java              # JWT 认证拦截器
+│   ├── controller/                           # REST 控制器（5个）
+│   │   ├── UserController.java               # /api/user/*
+│   │   ├── ActivityController.java           # /api/activity/*
+│   │   ├── RegistrationController.java       # /api/registration/*
+│   │   ├── PostController.java               # /api/post/*
+│   │   └── CommentController.java            # /api/comment/*
+│   ├── service/                              # 业务逻辑层（5个）
+│   ├── dao/                                  # 数据访问层（JdbcTemplate）
+│   ├── entity/                               # 实体类（8个）
+│   └── util/                                 # JwtUtil + Result
+├── src/main/resources/
+│   ├── application.yml                        # 全局配置（数据库、JWT）
+│   └── static/                                # 前端静态资源
+│       ├── index.html                         # 首页
+│       ├── css/style.css                      # 全局样式
+│       ├── js/
+│       │   ├── api.js                         # API 请求封装
+│       │   └── main.js                        # 公共工具函数
+│       └── pages/                             # 页面（7个）
+└── target/
+    └── teaching-platform-1.0.0.jar            # 可执行 JAR 包
 ```
 
 ---
@@ -221,26 +236,39 @@ web设计/
 用户浏览器
     │
     ▼
-Nginx (:80/443) ── 反向代理 ──► Tomcat (:8080) ── JDBC ──► MySQL (:3306)
-    │                                    │
-    └── 静态资源 (HTML/CSS/JS)            └── Servlet (Java Web)
+Nginx (:80) ── 反向代理 ──► Spring Boot (:8080, 内嵌 Tomcat)
+                                   │
+                                   ▼
+                              MySQL (:3306)
 ```
 
+前端静态文件和后端 API 同在一个 JAR 包中，无需单独部署 Tomcat。
+
 **环境要求**：
-- 操作系统：CentOS 7+ / Ubuntu 20.04+
-- Java：JDK 11+
-- Web 容器：Apache Tomcat 9+
-- 数据库：MySQL 8.0+
-- 反向代理：Nginx 1.20+
+- JDK 17+
+- MySQL 8.0+
 
 **部署步骤**：
-1. 云服务器安装 JDK、Tomcat、MySQL、Nginx
-2. 执行 SQL 建表脚本初始化数据库
-3. 修改后端数据库连接配置（`jdbc.properties`）
-4. 打包 WAR 部署至 Tomcat `webapps/` 目录
-5. 配置 Nginx 反向代理，静态资源直接由 Nginx 返回
-6. 配置域名 DNS 解析 + SSL 证书（HTTPS）
-7. 启动服务，验证访问
+
+```bash
+# 1. 修改 application.yml 中的数据库连接信息
+#    spring.datasource.url / username / password
+
+# 2. 打包
+mvn clean package -DskipTests
+
+# 3. 上传 JAR 到服务器
+scp target/teaching-platform-1.0.0.jar root@服务器IP:/www/wwwroot/
+
+# 4. 服务器上导入数据库
+mysql -u root -p < sql.txt
+
+# 5. 启动
+java -jar /www/wwwroot/teaching-platform-1.0.0.jar &
+
+# 6. （可选）Nginx 反向代理
+# location / { proxy_pass http://127.0.0.1:8080; }
+```
 
 ---
 
