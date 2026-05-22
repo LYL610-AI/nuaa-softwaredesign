@@ -4,7 +4,13 @@
       "Bash(curl -sL -o \"d:/软工综合课设/web设计/backend/web/WEB-INF/lib/mysql-connector-j-8.4.0.jar\" \"https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.4.0/mysql-connector-j-8.4.0.jar\")",
       "Bash(curl -sL --connect-timeout 30 --max-time 120 -o \".mvn/wrapper/maven-wrapper.jar\" \"https://repo1.maven.org/maven2/org/apache/maven/wrapper/maven-wrapper-distribution/3.3.0/maven-wrapper-distribution-3.3.0.jar\")",
       "Bash(java -jar .mvn/wrapper/maven-wrapper.jar -v)",
-      "Bash(curl -sL --connect-timeout 30 --max-time 300 -o maven.zip \"https://mirrors.huaweicloud.com/repository/apache/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.zip\")"
+      "Bash(curl -sL --connect-timeout 30 --max-time 300 -o maven.zip \"https://mirrors.huaweicloud.com/repository/apache/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.zip\")",
+      "Bash(apache-maven-3.9.6/bin/mvn clean *)",
+      "Bash(rm -rf apache-maven-3.9.6)",
+      "Bash(unzip -qo maven.zip)",
+      "Bash(rm maven.zip)",
+      "Bash(/d/apache-maven-3.9.6/bin/mvn clean *)",
+      "Bash(java -jar target/teaching-platform-1.0.0.jar)"
     ]
   }
 }

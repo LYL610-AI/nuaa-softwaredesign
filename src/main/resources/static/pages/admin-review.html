@@ -17,19 +17,19 @@
   <!-- 统计卡片 -->
   <div class="stat-grid">
     <div class="card stat-card">
-      <div class="stat-num" style="color:var(--warning);">3</div>
+      <div class="stat-num" style="color:var(--warning);" id="stat-activity">—</div>
       <div class="stat-label">待审核活动</div>
     </div>
     <div class="card stat-card">
-      <div class="stat-num" style="color:var(--warning);">5</div>
+      <div class="stat-num" style="color:var(--warning);" id="stat-registration">—</div>
       <div class="stat-label">待审核报名</div>
     </div>
     <div class="card stat-card">
-      <div class="stat-num" style="color:var(--warning);">2</div>
+      <div class="stat-num" style="color:var(--warning);" id="stat-post">—</div>
       <div class="stat-label">待审核帖子</div>
     </div>
     <div class="card stat-card">
-      <div class="stat-num" style="color:var(--warning);">1</div>
+      <div class="stat-num" style="color:var(--warning);" id="stat-summary">—</div>
       <div class="stat-label">待审核总结</div>
     </div>
   </div>
@@ -172,8 +172,9 @@ function loadActivities() {
         <td><span class="tag tag-pending">待审核</span></td>
         <td>
           <div class="action-group">
-            <button class="btn btn-success btn-sm" onclick="reviewItem('activity', ${act.activityId}, '1')">通过</button>
-            <button class="btn btn-danger btn-sm" onclick="reviewItem('activity', ${act.activityId}, '2')">退回</button>
+            <button class="btn btn-outline btn-sm" onclick="viewActivityDetail('${act.activityId}')">查看</button>
+            <button class="btn btn-success btn-sm" onclick="reviewItem('activity', '${act.activityId}', '1')">通过</button>
+            <button class="btn btn-danger btn-sm" onclick="reviewItem('activity', '${act.activityId}', '2')">退回</button>
           </div>
         </td>
       </tr>
@@ -204,8 +205,9 @@ function loadRegistrations() {
         <td><span class="tag tag-pending">待审核</span></td>
         <td>
           <div class="action-group">
-            <button class="btn btn-success btn-sm" onclick="reviewItem('registration', ${r.registrationId}, '1')">通过</button>
-            <button class="btn btn-danger btn-sm" onclick="reviewItem('registration', ${r.registrationId}, '2')">退回</button>
+            <button class="btn btn-outline btn-sm" onclick="viewRegDetail('${r.registrationId}')">查看</button>
+            <button class="btn btn-success btn-sm" onclick="reviewItem('registration', '${r.registrationId}', '1')">通过</button>
+            <button class="btn btn-danger btn-sm" onclick="reviewItem('registration', '${r.registrationId}', '2')">退回</button>
           </div>
         </td>
       </tr>
@@ -234,8 +236,9 @@ function loadPosts() {
         <td><span class="tag tag-pending">待审核</span></td>
         <td>
           <div class="action-group">
-            <button class="btn btn-success btn-sm" onclick="reviewItem('post', ${p.postId}, '1')">通过</button>
-            <button class="btn btn-danger btn-sm" onclick="reviewItem('post', ${p.postId}, '2')">退回</button>
+            <button class="btn btn-outline btn-sm" onclick="viewPostDetail('${p.postId}')">查看</button>
+            <button class="btn btn-success btn-sm" onclick="reviewItem('post', '${p.postId}', '1')">通过</button>
+            <button class="btn btn-danger btn-sm" onclick="reviewItem('post', '${p.postId}', '2')">退回</button>
           </div>
         </td>
       </tr>
@@ -263,8 +266,9 @@ function loadSummaries() {
         <td><span class="tag tag-pending">待审核</span></td>
         <td>
           <div class="action-group">
-            <button class="btn btn-success btn-sm" onclick="reviewItem('summary', ${s.activityId}, '1')">通过</button>
-            <button class="btn btn-danger btn-sm" onclick="reviewItem('summary', ${s.activityId}, '2')">退回</button>
+            <button class="btn btn-outline btn-sm" onclick="viewSummaryDetail('${s.activityId}')">查看</button>
+            <button class="btn btn-success btn-sm" onclick="reviewItem('summary', '${s.activityId}', '1')">通过</button>
+            <button class="btn btn-danger btn-sm" onclick="reviewItem('summary', '${s.activityId}', '2')">退回</button>
           </div>
         </td>
       </tr>
@@ -299,6 +303,7 @@ function reviewItem(type, id, state) {
       else if (type === 'post') await postApi.review(id, state);
       else if (type === 'summary') await activityApi.reviewSummary(id, state);
       showToast(`${typeNames[type]}已${stateText}`, 'success');
+      loadPendingCounts();
       // 刷新对应列表
       if (type === 'activity') loadActivities();
       else if (type === 'registration') loadRegistrations();
@@ -316,7 +321,90 @@ function escHtml(str) {
   return div.innerHTML;
 }
 
+// ===== 查看详情 =====
+async function viewActivityDetail(id) {
+  try {
+    const a = await api.get('/activity/detail/' + id);
+    showModal('活动详情', `
+      <p><strong>标题：</strong>${escHtml(a.title)}</p>
+      <p><strong>学校：</strong>${escHtml(a.schoolName || '')}</p>
+      <p><strong>地址：</strong>${escHtml(a.schoolAddress || '')}</p>
+      <p><strong>招募人数：</strong>${a.recruitsNumber} | <strong>志愿时长：</strong>${a.volunteerDuration}h</p>
+      <p><strong>发布时间：</strong>${a.publishTime}</p>
+      <p><strong>活动内容：</strong></p>
+      <p style="white-space:pre-wrap;line-height:1.8;color:var(--text-secondary);">${escHtml(a.content)}</p>
+    `, null);
+  } catch (err) { showToast('加载详情失败', 'error'); }
+}
+
+async function viewRegDetail(id) {
+  try {
+    const data = await api.get('/registration/list/all', { pageSize: 100 });
+    const list = data.list || data || [];
+    const r = list.find(x => x.registrationId === id);
+    if (!r) { showToast('未找到报名记录', 'error'); return; }
+    showModal('报名详情', `
+      <p><strong>志愿者：</strong>${escHtml(r.realName)}</p>
+      <p><strong>性别：</strong>${r.gender || '—'} | <strong>学历：</strong>${r.degree || '—'}</p>
+      <p><strong>身份证号：</strong>${r.idNumber || '—'}</p>
+      <p><strong>手机号：</strong>${r.phoneNumber || '—'}</p>
+      <p><strong>学校/单位：</strong>${escHtml(r.introduce || '—')}</p>
+      <p><strong>报名时间：</strong>${r.entryTime}</p>
+      <p><strong>关联活动：</strong>${escHtml(r.activityTitle || '')}</p>
+    `, null);
+  } catch (err) { showToast('加载详情失败', 'error'); }
+}
+
+async function viewPostDetail(id) {
+  try {
+    const p = await api.get('/post/detail/' + id);
+    showModal('帖子详情', `
+      <p><strong>标题：</strong>${escHtml(p.title)}</p>
+      <p><strong>发布者：</strong>${escHtml(p.authorName || '用户' + p.userId)}</p>
+      <p><strong>关联活动：</strong>${escHtml(p.activityTitle || '活动' + p.activityId)}</p>
+      <p><strong>发布时间：</strong>${p.publishTime}</p>
+      <p><strong>内容：</strong></p>
+      <p style="white-space:pre-wrap;line-height:1.8;color:var(--text-secondary);">${escHtml(p.content)}</p>
+    `, null);
+  } catch (err) { showToast('加载详情失败', 'error'); }
+}
+
+async function viewSummaryDetail(id) {
+  try {
+    const data = await api.get('/activity/summary/list', { pageSize: 100 });
+    const list = data.list || data || [];
+    const s = list.find(x => x.activityId === id);
+    if (!s) { showToast('未找到总结记录', 'error'); return; }
+    showModal('总结详情', `
+      <p><strong>活动：</strong>${escHtml(s.title || '')}</p>
+      <p><strong>学校：</strong>${escHtml(s.schoolName || '')}</p>
+      <p><strong>总结标题：</strong>${escHtml(s.summaryTitle || '')}</p>
+      <p><strong>提交时间：</strong>${s.summarySubmitTime || '—'}</p>
+      <p><strong>总结内容：</strong></p>
+      <p style="white-space:pre-wrap;line-height:1.8;color:var(--text-secondary);">${escHtml(s.summaryContent || '')}</p>
+    `, null);
+  } catch (err) { showToast('加载详情失败', 'error'); }
+}
+
+// 加载待审核数量
+async function loadPendingCounts() {
+  try {
+    const [actRes, regRes, postRes, sumRes] = await Promise.all([
+      api.get('/activity/list', { auditState: '0', pageSize: 999 }),
+      api.get('/registration/list/all', { auditState: '0', pageSize: 999 }),
+      api.get('/post/list', { auditState: '0', pageSize: 999 }),
+      api.get('/activity/summary/list', { auditState: '0', pageSize: 999 })
+    ]);
+    const count = (res) => res.total != null ? res.total : (Array.isArray(res) ? res.length : (res.list || []).length);
+    document.getElementById('stat-activity').textContent = count(actRes);
+    document.getElementById('stat-registration').textContent = count(regRes);
+    document.getElementById('stat-post').textContent = count(postRes);
+    document.getElementById('stat-summary').textContent = count(sumRes);
+  } catch (err) { /* silent */ }
+}
+
 // 初始化加载
+loadPendingCounts();
 loadActivities();
 loadRegistrations();
 loadPosts();

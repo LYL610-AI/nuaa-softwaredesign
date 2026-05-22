@@ -1,6 +1,7 @@
 package com.teachingplatform.dao;
 
 import com.teachingplatform.entity.*;
+import com.teachingplatform.util.IdGenerator;
 import com.teachingplatform.util.JwtUtil;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -29,30 +30,34 @@ public class UserDao {
         }
     }
 
-    public Map<String, Object> login(String userId, String password, int role) {
+    public Map<String, Object> login(String phone, String password, int role) {
         String table;
         if (role == 1) table = "volunteer_user";
         else if (role == 2) table = "school_user";
         else table = "administrator";
 
-        String sql = "SELECT user_id, user_password, user_permission, user_phone, register_time FROM " + table + " WHERE user_id = ?";
-        List<Map<String, Object>> rows = jdbc.queryForList(sql, userId);
+        String sql = "SELECT * FROM " + table + " WHERE user_phone = ?";
+        List<Map<String, Object>> rows = jdbc.queryForList(sql, phone);
         if (rows.isEmpty()) return null;
 
         Map<String, Object> row = rows.get(0);
         String pwd = (String) row.get("user_password");
         if (!pwd.equals(hashPassword(password))) return null;
 
+        String userId = (String) row.get("user_id");
         Map<String, Object> user = new HashMap<>();
-        user.put("userId", row.get("user_id"));
+        user.put("userId", userId);
         user.put("userPermission", row.get("user_permission"));
         user.put("userPhone", row.get("user_phone"));
         user.put("registerTime", row.get("register_time") != null ? row.get("register_time").toString() : "");
+        if (role == 1) user.put("userIdentity", row.get("user_identity"));
+        if (role == 2) user.put("schoolName", row.get("school_name"));
         user.put("token", JwtUtil.generate(userId, (int) row.get("user_permission")));
         return user;
     }
 
     public boolean registerVolunteer(VolunteerUser vu) {
+        vu.setUserId(IdGenerator.generate());
         String sql = "INSERT INTO volunteer_user (user_id, user_password, user_permission, user_identity, user_sex, user_edu, user_phone, register_time) VALUES (?, ?, 1, ?, ?, ?, ?, NOW())";
         return jdbc.update(sql,
                 vu.getUserId(), hashPassword(vu.getUserPassword()),
@@ -60,16 +65,17 @@ public class UserDao {
     }
 
     public boolean registerSchool(SchoolUser su) {
-        String sql = "INSERT INTO school_user (user_id, user_password, user_permission, type, address, license, principle, user_phone, register_time) VALUES (?, ?, 2, ?, ?, ?, ?, ?, NOW())";
+        su.setUserId(IdGenerator.generate());
+        String sql = "INSERT INTO school_user (user_id, user_password, user_permission, school_name, type, address, license, principle, user_phone, register_time) VALUES (?, ?, 2, ?, ?, ?, ?, ?, ?, NOW())";
         return jdbc.update(sql,
-                su.getUserId(), hashPassword(su.getUserPassword()),
+                su.getUserId(), hashPassword(su.getUserPassword()), su.getSchoolName(),
                 su.getType(), su.getAddress(), su.getLicense(), su.getPrinciple(), su.getUserPhone()) > 0;
     }
 
-    public boolean exists(String userId) {
+    public boolean existsByPhone(String phone) {
         String[] tables = {"volunteer_user", "school_user", "administrator"};
         for (String table : tables) {
-            Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM " + table + " WHERE user_id = ?", Integer.class, userId);
+            Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM " + table + " WHERE user_phone = ?", Integer.class, phone);
             if (count != null && count > 0) return true;
         }
         return false;
@@ -96,6 +102,7 @@ public class UserDao {
             user.put("userSex", row.get("user_sex"));
             user.put("userEdu", row.get("user_edu"));
         } else if (permission == 2) {
+            user.put("schoolName", row.get("school_name"));
             user.put("type", row.get("type"));
             user.put("address", row.get("address"));
             user.put("license", row.get("license"));
@@ -120,8 +127,8 @@ public class UserDao {
     }
 
     public boolean updateSchool(SchoolUser su) {
-        String sql = "UPDATE school_user SET type = ?, address = ?, license = ?, principle = ?, user_phone = ? WHERE user_id = ?";
-        return jdbc.update(sql, su.getType(), su.getAddress(), su.getLicense(), su.getPrinciple(), su.getUserPhone(), su.getUserId()) > 0;
+        String sql = "UPDATE school_user SET school_name = ?, type = ?, address = ?, license = ?, principle = ?, user_phone = ? WHERE user_id = ?";
+        return jdbc.update(sql, su.getSchoolName(), su.getType(), su.getAddress(), su.getLicense(), su.getPrinciple(), su.getUserPhone(), su.getUserId()) > 0;
     }
 
     public List<Map<String, Object>> listUsers(int permission, String keyword, int page, int pageSize) {

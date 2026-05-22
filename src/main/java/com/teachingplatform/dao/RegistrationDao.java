@@ -1,6 +1,7 @@
 package com.teachingplatform.dao;
 
 import com.teachingplatform.entity.Registration;
+import com.teachingplatform.util.IdGenerator;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -16,29 +17,30 @@ public class RegistrationDao {
     }
 
     public boolean submit(Registration reg) {
-        String sql = "INSERT INTO registration (phone_number, real_name, id_number, gender, degree, school_work, audit_state, entry_time, activity_id, user_id) VALUES (?, ?, ?, ?, ?, ?, '0', NOW(), ?, ?)";
+        reg.setRegistrationId(IdGenerator.generate());
+        String sql = "INSERT INTO registration (registration_id, phone_number, real_name, id_number, gender, degree, introduce, audit_state, entry_time, activity_id, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, '0', NOW(), ?, ?)";
         return jdbc.update(sql,
-                reg.getPhoneNumber(), reg.getRealName(), reg.getIdNumber(),
-                reg.getGender(), reg.getDegree(), reg.getSchoolWork(),
+                reg.getRegistrationId(), reg.getPhoneNumber(), reg.getRealName(), reg.getIdNumber(),
+                reg.getGender(), reg.getDegree(), reg.getIntroduce(),
                 reg.getActivityId(), reg.getUserId()) > 0;
     }
 
-    public boolean cancel(int registrationId) {
+    public boolean cancel(String registrationId) {
         String sql = "DELETE FROM registration WHERE registration_id = ? AND audit_state = '0'";
         return jdbc.update(sql, registrationId) > 0;
     }
 
-    public List<Registration> listByActivity(int activityId) {
+    public List<Registration> listByActivity(String activityId) {
         String sql = "SELECT r.*, a.title as activity_title FROM registration r LEFT JOIN activity a ON r.activity_id = a.activity_id WHERE r.activity_id = ? ORDER BY r.entry_time DESC";
         return jdbc.query(sql, (rs, rowNum) -> mapRegistration(rs), activityId);
     }
 
-    public boolean review(int registrationId, String auditState) {
+    public boolean review(String registrationId, String auditState) {
         String sql = "UPDATE registration SET audit_state = ? WHERE registration_id = ?";
         return jdbc.update(sql, auditState, registrationId) > 0;
     }
 
-    public List<Registration> myRegistrations(int userId) {
+    public List<Registration> myRegistrations(String userId) {
         String sql = "SELECT r.*, a.title as activity_title FROM registration r LEFT JOIN activity a ON r.activity_id = a.activity_id WHERE r.user_id = ? ORDER BY r.entry_time DESC";
         return jdbc.query(sql, (rs, rowNum) -> mapRegistration(rs), userId);
     }
@@ -60,17 +62,17 @@ public class RegistrationDao {
 
     private Registration mapRegistration(java.sql.ResultSet rs) throws java.sql.SQLException {
         Registration r = new Registration();
-        r.setRegistrationId(rs.getInt("registration_id"));
+        r.setRegistrationId(rs.getString("registration_id"));
         r.setPhoneNumber(rs.getString("phone_number"));
         r.setRealName(rs.getString("real_name"));
         r.setIdNumber(rs.getString("id_number"));
         r.setGender(rs.getString("gender"));
         r.setDegree(rs.getString("degree"));
-        r.setSchoolWork(rs.getString("school_work"));
+        r.setIntroduce(rs.getString("introduce"));
         r.setAuditState(rs.getString("audit_state"));
         r.setEntryTime(rs.getString("entry_time"));
-        r.setActivityId(rs.getInt("activity_id"));
-        r.setUserId(rs.getInt("user_id"));
+        r.setActivityId(rs.getString("activity_id"));
+        r.setUserId(rs.getString("user_id"));
         try { r.setActivityTitle(rs.getString("activity_title")); } catch (java.sql.SQLException ignored) {}
         return r;
     }

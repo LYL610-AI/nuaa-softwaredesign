@@ -14,24 +14,24 @@ public class RegistrationService {
         this.registrationDao = registrationDao;
     }
 
-    public boolean submit(Registration reg, int userId) {
+    public boolean submit(Registration reg, String userId) {
         reg.setUserId(userId);
         return registrationDao.submit(reg);
     }
 
-    public boolean cancel(int registrationId) {
+    public boolean cancel(String registrationId) {
         return registrationDao.cancel(registrationId);
     }
 
-    public List<Registration> listByActivity(int activityId) {
+    public List<Registration> listByActivity(String activityId) {
         return registrationDao.listByActivity(activityId);
     }
 
-    public boolean review(int registrationId, String auditState) {
+    public boolean review(String registrationId, String auditState) {
         return registrationDao.review(registrationId, auditState);
     }
 
-    public List<Registration> myRegistrations(int userId) {
+    public List<Registration> myRegistrations(String userId) {
         return registrationDao.myRegistrations(userId);
     }
 

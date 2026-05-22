@@ -39,7 +39,7 @@ function getUserPermission() {
 function logout() {
   localStorage.removeItem('token');
   localStorage.removeItem('currentUser');
-  window.location.href = '../pages/login.html';
+  window.location.href = '../index.html';
 }
 
 // ===== Toast 提示 =====
@@ -101,6 +101,11 @@ function initHeader() {
 
   // 未登录
   if (!isLogged) {
+    navLinks = `
+      <a href="../index.html" class="${pageName === 'index' || pageName === '' ? 'active' : ''}">首页</a>
+      <a href="../pages/activities.html" class="${pageName === 'activities' || pageName === 'activity-detail' ? 'active' : ''}">支教活动</a>
+      <a href="../pages/discussion.html" class="${pageName === 'discussion' ? 'active' : ''}">讨论区</a>
+    `;
     actionsHtml = `
       <a href="../pages/login.html" class="btn btn-outline btn-sm">登录</a>
       <a href="../pages/register.html" class="btn btn-primary btn-sm">注册</a>
@@ -111,10 +116,11 @@ function initHeader() {
   if (isLogged && permission === ROLE.VOLUNTEER) {
     navLinks = `
       <a href="../index.html" class="${pageName === 'index' || pageName === '' ? 'active' : ''}">首页</a>
+      <a href="../pages/activities.html" class="${pageName === 'activities' || pageName === 'activity-detail' ? 'active' : ''}">支教活动</a>
       <a href="../pages/discussion.html" class="${pageName === 'discussion' ? 'active' : ''}">讨论区</a>
     `;
     actionsHtml = `
-      <span style="font-size:14px;color:var(--text-secondary);">${user.userId || '志愿者'}</span>
+      <span style="font-size:14px;color:var(--text-secondary);">${user.userIdentity || user.userId || '志愿者'}</span>
       <a href="../pages/personal-center.html" class="btn btn-outline btn-sm">个人中心</a>
       <button class="btn btn-outline btn-sm" onclick="logout()">退出</button>
     `;
@@ -124,11 +130,12 @@ function initHeader() {
   if (isLogged && permission === ROLE.SCHOOL) {
     navLinks = `
       <a href="../index.html" class="${pageName === 'index' || pageName === '' ? 'active' : ''}">首页</a>
-      <a href="../pages/publish-activity.html" class="${pageName === 'publish-activity' ? 'active' : ''}">发布活动</a>
+      <a href="../pages/activities.html" class="${pageName === 'activities' || pageName === 'activity-detail' ? 'active' : ''}">支教活动</a>
       <a href="../pages/discussion.html" class="${pageName === 'discussion' ? 'active' : ''}">讨论区</a>
+      <a href="../pages/publish-activity.html" class="${pageName === 'publish-activity' ? 'active' : ''}">发布活动</a>
     `;
     actionsHtml = `
-      <span style="font-size:14px;color:var(--text-secondary);">${user.userId || '学校用户'}</span>
+      <span style="font-size:14px;color:var(--text-secondary);">${user.schoolName || user.userId || '学校用户'}</span>
       <a href="../pages/personal-center.html" class="btn btn-outline btn-sm">个人中心</a>
       <button class="btn btn-outline btn-sm" onclick="logout()">退出</button>
     `;
@@ -138,8 +145,9 @@ function initHeader() {
   if (isLogged && permission === ROLE.ADMIN) {
     navLinks = `
       <a href="../index.html" class="${pageName === 'index' || pageName === '' ? 'active' : ''}">首页</a>
-      <a href="../pages/admin-review.html" class="${pageName === 'admin-review' ? 'active' : ''}">审核管理</a>
+      <a href="../pages/activities.html" class="${pageName === 'activities' || pageName === 'activity-detail' ? 'active' : ''}">支教活动</a>
       <a href="../pages/discussion.html" class="${pageName === 'discussion' ? 'active' : ''}">讨论区</a>
+      <a href="../pages/admin-review.html" class="${pageName === 'admin-review' ? 'active' : ''}">审核管理</a>
     `;
     actionsHtml = `
       <span style="font-size:14px;color:var(--text-secondary);">${user.userId || '管理员'}</span>
@@ -163,13 +171,16 @@ function initHeader() {
 }
 
 // ===== 密码可见切换 =====
+const EYE_OPEN = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_CLOSED = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
 function initPasswordToggles() {
   document.querySelectorAll('.password-toggle').forEach(btn => {
     btn.addEventListener('click', () => {
       const input = btn.parentElement.querySelector('input');
       const isPassword = input.type === 'password';
       input.type = isPassword ? 'text' : 'password';
-      btn.innerHTML = isPassword ? '&#x1F440;' : '&#x1F441;';
+      btn.innerHTML = isPassword ? EYE_OPEN : EYE_CLOSED;
     });
   });
 }

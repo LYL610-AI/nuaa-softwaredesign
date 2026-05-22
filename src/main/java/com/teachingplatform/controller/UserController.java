@@ -17,14 +17,19 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping("/checkPhone")
+    public Result checkPhone(@RequestParam String phone) {
+        return Result.ok(userService.phoneExists(phone));
+    }
+
     @PostMapping("/login")
     public Result login(@RequestBody Map<String, String> body) {
-        String userId = body.get("userId");
+        String phone = body.get("phone");
         String password = body.get("password");
         int role = Integer.parseInt(body.getOrDefault("role", "1"));
-        Map<String, Object> user = userService.login(userId, password, role);
+        Map<String, Object> user = userService.login(phone, password, role);
         if (user == null) {
-            return Result.error(401, "账号或密码错误");
+            return Result.error(401, "手机号或密码错误");
         }
         return Result.ok(user);
     }
@@ -33,7 +38,7 @@ public class UserController {
     public Result register(@RequestBody Map<String, String> body) {
         boolean ok = userService.register(body);
         if (!ok) {
-            return Result.error(400, "注册失败，账号已存在");
+            return Result.error(400, "注册失败，手机号已注册");
         }
         return Result.ok();
     }

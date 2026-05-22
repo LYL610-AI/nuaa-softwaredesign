@@ -33,7 +33,11 @@ async function request(url, options = {}) {
 // 快捷方法
 const api = {
   get(url, params = {}) {
-    const query = new URLSearchParams(params).toString();
+    const filtered = {};
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== undefined && v !== null && v !== '') filtered[k] = v;
+    }
+    const query = new URLSearchParams(filtered).toString();
     const fullUrl = query ? `${url}?${query}` : url;
     return request(fullUrl, { method: 'GET' });
   },
@@ -55,8 +59,9 @@ const api = {
 
 // 用户
 const userApi = {
-  login:    (userId, password, role) => api.post('/user/login', { userId, password, role }),
+  login:    (phone, password, role) => api.post('/user/login', { phone, password, role }),
   register: (data) => api.post('/user/register', data),
+  checkPhone: (phone) => api.get('/user/checkPhone', { phone }),
   getInfo:  () => api.get('/user/info'),
   update:   (data) => api.put('/user/update', data),
   changePwd: (oldPwd, newPwd) => api.put('/user/password', { oldPwd, newPwd })
@@ -69,6 +74,8 @@ const activityApi = {
   create: (data) => api.post('/activity/create', data),
   update: (id, data) => api.put(`/activity/update/${id}`, data),
   review: (id, auditState, reason) => api.put(`/activity/review/${id}`, { auditState, reason }),
+  changeState: (id, activityState) => api.put(`/activity/state/${id}`, { activityState }),
+  delete: (id) => api.delete(`/activity/delete/${id}`),
   submitSummary: (id, data) => api.post(`/activity/summary/${id}`, data),
   reviewSummary: (id, auditState) => api.put(`/activity/summary/review/${id}`, { auditState })
 };

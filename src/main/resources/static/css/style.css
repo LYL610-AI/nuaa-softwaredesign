@@ -21,7 +21,7 @@
   --radius: 8px;
   --radius-sm: 4px;
   --transition: all 0.3s ease;
-  --max-width: 1200px;
+  --max-width: 1400px;
   --header-height: 64px;
 }
 
@@ -357,6 +357,18 @@ select.form-input {
 .activity-card .card-title {
   font-size: 16px;
   margin-bottom: 12px;
+  color: var(--text);
+}
+
+.discussion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 20px;
+}
+
+.discussion-grid .discussion-card h4 {
+  font-size: 15px;
+  margin-bottom: 8px;
   color: var(--text);
 }
 
@@ -763,6 +775,12 @@ tbody tr:hover {
   font-size: 15px;
 }
 
+/* ===== 快捷入口卡片 ===== */
+.quick-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
 /* ===== 响应式 ===== */
 @media (max-width: 768px) {
   .header-nav {
@@ -786,6 +804,9 @@ tbody tr:hover {
   }
   .search-bar .form-input {
     max-width: none;
+  }
+  .quick-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
   .search-bar select {
     width: 100%;

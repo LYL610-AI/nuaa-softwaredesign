@@ -23,20 +23,23 @@
       <p id="profileTime">注册时间：—</p>
     </div>
     <div style="margin-left:auto;">
-      <button class="btn btn-outline btn-sm" onclick="showEditProfile()">编辑资料</button>
+      <button class="btn btn-outline btn-sm" id="editProfileBtn" onclick="showEditProfile()" style="display:none;">编辑资料</button>
     </div>
   </div>
 
   <!-- 功能标签页 -->
-  <div class="tabs" style="margin-top:24px;">
-    <button class="tab-item active" data-tab="registrations">我的报名</button>
-    <button class="tab-item" data-tab="activities">我的活动</button>
-    <button class="tab-item" data-tab="posts">我的帖子</button>
-    <button class="tab-item" data-tab="security">账号安全</button>
+  <div class="tabs" style="margin-top:24px;" id="userTabs">
+    <button class="tab-item" data-tab="registrations" data-role="1">我的报名</button>
+    <button class="tab-item" data-tab="activities" data-role="2">我的活动</button>
+    <button class="tab-item" data-tab="posts" data-role="1,2">我的帖子</button>
+    <button class="tab-item" data-tab="reviewedActivities" data-role="3">已审核活动</button>
+    <button class="tab-item" data-tab="reviewedPosts" data-role="3">已审核帖子</button>
+    <button class="tab-item" data-tab="reviewedSummaries" data-role="3">已审核总结</button>
+    <button class="tab-item" data-tab="security">修改密码</button>
   </div>
 
   <!-- 我的报名 -->
-  <div class="tab-content active" id="tab-registrations">
+  <div class="tab-content" id="tab-registrations" style="display:none;">
     <div class="card">
       <div class="table-wrapper">
         <table>
@@ -60,11 +63,11 @@
         <table>
           <thead>
             <tr>
-              <th>活动标题</th><th>状态</th><th>发布时间</th><th>操作</th>
+              <th>活动标题</th><th>招募人数</th><th>状态</th><th>审核状态</th><th>发布时间</th><th>操作</th>
             </tr>
           </thead>
           <tbody id="myActivityList">
-            <tr><td colspan="5" style="text-align:center;color:var(--text-muted);">加载中……</td></tr>
+            <tr><td colspan="6" style="text-align:center;color:var(--text-muted);">加载中……</td></tr>
           </tbody>
         </table>
       </div>
@@ -89,6 +92,48 @@
     </div>
   </div>
 
+  <!-- 已审核活动（管理员） -->
+  <div class="tab-content" id="tab-reviewedActivities" style="display:none;">
+    <div class="card">
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>活动标题</th><th>发布学校</th><th>发布时间</th><th>审核状态</th></tr></thead>
+          <tbody id="reviewedActivityBody">
+            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);">加载中……</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 已审核帖子（管理员） -->
+  <div class="tab-content" id="tab-reviewedPosts" style="display:none;">
+    <div class="card">
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>帖子标题</th><th>发布者</th><th>发布时间</th><th>审核状态</th></tr></thead>
+          <tbody id="reviewedPostBody">
+            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);">加载中……</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 已审核总结（管理员） -->
+  <div class="tab-content" id="tab-reviewedSummaries" style="display:none;">
+    <div class="card">
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>活动名称</th><th>总结标题</th><th>提交时间</th><th>审核状态</th></tr></thead>
+          <tbody id="reviewedSummaryBody">
+            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);">加载中……</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <!-- 账号安全 -->
   <div class="tab-content" id="tab-security" style="display:none;">
     <div class="card" style="max-width:500px;">
@@ -98,21 +143,21 @@
           <label for="oldPassword">原密码</label>
           <div class="password-wrapper">
             <input type="password" id="oldPassword" class="form-input" placeholder="请输入原密码" required>
-            <button type="button" class="password-toggle" tabindex="-1">&#x1F441;</button>
+            <button type="button" class="password-toggle" tabindex="-1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button>
           </div>
         </div>
         <div class="form-group">
           <label for="newPassword">新密码</label>
           <div class="password-wrapper">
             <input type="password" id="newPassword" class="form-input" placeholder="6-20 位新密码" required minlength="6">
-            <button type="button" class="password-toggle" tabindex="-1">&#x1F441;</button>
+            <button type="button" class="password-toggle" tabindex="-1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button>
           </div>
         </div>
         <div class="form-group">
           <label for="confirmNewPassword">确认新密码</label>
           <div class="password-wrapper">
             <input type="password" id="confirmNewPassword" class="form-input" placeholder="再次输入新密码" required>
-            <button type="button" class="password-toggle" tabindex="-1">&#x1F441;</button>
+            <button type="button" class="password-toggle" tabindex="-1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button>
           </div>
         </div>
         <button type="submit" class="btn btn-primary">修改密码</button>
@@ -132,17 +177,17 @@
       <form id="summaryForm">
         <div class="form-group">
           <label>总结标题</label>
-          <input type="text" class="form-input" placeholder="请输入总结标题" required>
+          <input type="text" id="summaryTitle" class="form-input" placeholder="请输入总结标题" required>
         </div>
         <div class="form-group">
           <label>总结内容</label>
-          <textarea class="form-input" rows="5" placeholder="请详细描述活动开展情况、参与志愿者、教学成果等" required></textarea>
+          <textarea id="summaryContent" class="form-input" rows="5" placeholder="请详细描述活动开展情况、参与志愿者、教学成果等" required></textarea>
         </div>
       </form>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="document.getElementById('summaryModal').classList.remove('show')">取消</button>
-      <button class="btn btn-primary" onclick="submitSummary()">提交审核</button>
+      <button class="btn btn-primary" id="summarySubmitBtn" onclick="submitSummary()">提交审核</button>
     </div>
   </div>
 </div>
@@ -159,34 +204,30 @@ const stateClassMap = { '0': 'tag-recruiting', '1': 'tag-ongoing', '2': 'tag-end
 const auditClassMap = { '0': 'tag-pending', '1': 'tag-approved', '2': 'tag-rejected' };
 const auditMap = { '0': '待审核', '1': '审核通过', '2': '未通过' };
 
-// 标签页切换
-document.querySelectorAll('.tab-item').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-    document.getElementById('tab-' + tab.dataset.tab).style.display = 'block';
-  });
-});
-
 // 加载用户信息
 async function loadProfile() {
   try {
     const user = await userApi.getInfo();
     setCurrentUser(user);
-    document.getElementById('profileName').textContent = user.userId || '用户';
-    document.getElementById('profileRole').textContent = '角色：' + (ROLE_NAME[user.userPermission] || '—');
-    document.getElementById('profilePhone').textContent = '手机号：' + (user.userPhone || '—');
-    document.getElementById('profileTime').textContent = '注册时间：' + (user.registerTime || '—');
+    renderProfile(user);
   } catch (err) {
-    // 后端未就绪时使用本地缓存
     const user = getCurrentUser();
-    if (user) {
-      document.getElementById('profileName').textContent = user.userId || '用户';
-      document.getElementById('profileRole').textContent = '角色：' + (ROLE_NAME[user.userPermission] || '—');
-      document.getElementById('profilePhone').textContent = '手机号：' + (user.userPhone || '—');
-    }
+    if (user) renderProfile(user);
   }
+}
+
+function renderProfile(user) {
+  let displayName = user.userId;
+  if (user.userPermission === 1) displayName = user.userIdentity || user.userId;
+  else if (user.userPermission === 2) displayName = user.schoolName || user.userId;
+  document.getElementById('profileName').textContent = displayName;
+  document.getElementById('profileRole').textContent = '角色：' + (ROLE_NAME[user.userPermission] || '—');
+  document.getElementById('profilePhone').textContent = '手机号：' + (user.userPhone || '—');
+  document.getElementById('profileTime').textContent = '注册时间：' + (user.registerTime || '—');
+  if (user.userPermission !== 3) {
+    document.getElementById('editProfileBtn').style.display = '';
+  }
+  window._profileData = user;
 }
 
 // 加载我的报名
@@ -206,7 +247,7 @@ async function loadMyRegistrations() {
         <td><span class="tag ${auditClassMap[r.auditState]}">${auditMap[r.auditState]}</span></td>
         <td>
           ${r.auditState === '0'
-            ? `<button class="btn btn-danger btn-sm" onclick="cancelRegistration(${r.registrationId})">取消报名</button>`
+            ? `<button class="btn btn-danger btn-sm" onclick="cancelRegistration('${r.registrationId}')">取消报名</button>`
             : '<span style="color:var(--text-muted);font-size:13px;">—</span>'}
         </td>
       </tr>
@@ -222,25 +263,29 @@ async function loadMyActivities() {
   try {
     const result = await api.get('/activity/my');
     const list = Array.isArray(result) ? result : (result.list || []);
+    myActivityCache = {};
+    list.forEach(a => { myActivityCache[a.activityId] = a; });
     if (!list.length) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">暂无发布的活动</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">暂无发布的活动</td></tr>';
       return;
     }
     tbody.innerHTML = list.map(act => `
       <tr>
         <td>${escHtml(act.title)}</td>
+        <td>${act.recruitsNumber}</td>
         <td><span class="tag ${stateClassMap[act.activityState]}">${stateMap[act.activityState]}</span></td>
+        <td><span class="tag ${auditClassMap[act.auditState]}">${auditMap[act.auditState]}</span></td>
         <td>${(act.publishTime || '').split(' ')[0]}</td>
         <td>
           <div class="action-group">
-            <button class="btn btn-outline btn-sm" onclick="showToast('编辑功能暂未开放', 'warning')">编辑</button>
-            <button class="btn btn-primary btn-sm" onclick="showSummaryModal(${act.activityId})">提交总结</button>
+            ${act.auditState === '1' && !act.summaryTitle ? `<button class="btn btn-primary btn-sm" onclick="showSummaryModal('${act.activityId}')">提交总结</button>` : ''}
+            ${act.summaryTitle ? `<button class="btn btn-outline btn-sm" onclick="showSummaryModal('${act.activityId}')">查看总结</button>` : ''}
           </div>
         </td>
       </tr>
     `).join('');
   } catch (err) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">加载失败</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">加载失败</td></tr>';
   }
 }
 
@@ -260,7 +305,7 @@ async function loadMyPosts() {
         <td>${escHtml(p.activityTitle || '活动' + p.activityId)}</td>
         <td>${(p.publishTime || '').split(' ')[0]}</td>
         <td><span class="tag ${auditClassMap[p.auditState]}">${auditMap[p.auditState]}</span></td>
-        <td><button class="btn btn-danger btn-sm" onclick="deletePost(${p.postId})">删除</button></td>
+        <td><button class="btn btn-danger btn-sm" onclick="deletePost('${p.postId}')">删除</button></td>
       </tr>
     `).join('');
   } catch (err) {
@@ -268,7 +313,103 @@ async function loadMyPosts() {
   }
 }
 
-function showEditProfile() { showToast('编辑资料功能暂未开放', 'warning'); }
+function showEditProfile() {
+  const user = window._profileData || getCurrentUser();
+  if (!user) return;
+  const perm = user.userPermission;
+  let fieldsHtml = '';
+  if (perm === 1) {
+    fieldsHtml = `
+      <div class="form-group">
+        <label>真实姓名</label>
+        <input type="text" id="editUserIdentity" class="form-input" value="${escHtml(user.userIdentity || '')}" placeholder="请输入真实姓名">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>性别</label>
+          <select id="editUserSex" class="form-input">
+            <option value="">请选择</option>
+            <option value="男" ${user.userSex === '男' ? 'selected' : ''}>男</option>
+            <option value="女" ${user.userSex === '女' ? 'selected' : ''}>女</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>学历</label>
+          <select id="editUserEdu" class="form-input">
+            <option value="">请选择</option>
+            <option value="高中" ${user.userEdu === '高中' ? 'selected' : ''}>高中</option>
+            <option value="专科" ${user.userEdu === '专科' ? 'selected' : ''}>专科</option>
+            <option value="本科" ${user.userEdu === '本科' ? 'selected' : ''}>本科</option>
+            <option value="硕士" ${user.userEdu === '硕士' ? 'selected' : ''}>硕士</option>
+            <option value="博士" ${user.userEdu === '博士' ? 'selected' : ''}>博士</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>手机号</label>
+        <input type="tel" id="editUserPhone" class="form-input" value="${escHtml(user.userPhone || '')}" placeholder="请输入手机号">
+      </div>
+    `;
+  } else if (perm === 2) {
+    fieldsHtml = `
+      <div class="form-group">
+        <label>学校名称</label>
+        <input type="text" id="editSchoolName" class="form-input" value="${escHtml(user.schoolName || '')}" placeholder="请输入学校全称">
+      </div>
+      <div class="form-group">
+        <label>负责人</label>
+        <input type="text" id="editPrinciple" class="form-input" value="${escHtml(user.principle || '')}" placeholder="请输入负责人姓名">
+      </div>
+      <div class="form-group">
+        <label>办学许可证号</label>
+        <input type="text" id="editLicense" class="form-input" value="${escHtml(user.license || '')}" placeholder="请输入办学许可证号">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>学校类型</label>
+          <select id="editSchoolType" class="form-input">
+            <option value="">请选择</option>
+            <option value="小学" ${user.type === '小学' ? 'selected' : ''}>小学</option>
+            <option value="初中" ${user.type === '初中' ? 'selected' : ''}>初中</option>
+            <option value="高中" ${user.type === '高中' ? 'selected' : ''}>高中</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>学校地址</label>
+          <input type="text" id="editAddress" class="form-input" value="${escHtml(user.address || '')}" placeholder="省/市/县/镇">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>手机号</label>
+        <input type="tel" id="editUserPhone" class="form-input" value="${escHtml(user.userPhone || '')}" placeholder="请输入手机号">
+      </div>
+    `;
+  } else {
+    fieldsHtml = '<p style="text-align:center;color:var(--text-muted);padding:20px;">管理员暂不支持在线修改资料</p>';
+  }
+
+  showModal('编辑个人资料', fieldsHtml, async () => {
+    const data = { userPhone: document.getElementById('editUserPhone')?.value?.trim() || '' };
+    if (perm === 1) {
+      data.userIdentity = document.getElementById('editUserIdentity')?.value?.trim() || '';
+      data.userSex = document.getElementById('editUserSex')?.value || '';
+      data.userEdu = document.getElementById('editUserEdu')?.value || '';
+    } else if (perm === 2) {
+      data.schoolName = document.getElementById('editSchoolName')?.value?.trim() || '';
+      data.principle = document.getElementById('editPrinciple')?.value?.trim() || '';
+      data.license = document.getElementById('editLicense')?.value?.trim() || '';
+      data.type = document.getElementById('editSchoolType')?.value || '';
+      data.address = document.getElementById('editAddress')?.value?.trim() || '';
+    } else return;
+    try {
+      await userApi.update(data);
+      showToast('资料修改成功', 'success');
+      await loadProfile();
+    } catch (err) {
+      showToast(err.message || '修改失败', 'error');
+    }
+  });
+}
 
 async function cancelRegistration(id) {
   showModal('确认取消', '<p>确定要取消该报名吗？取消后不可恢复。</p>', async () => {
@@ -283,20 +424,33 @@ async function cancelRegistration(id) {
 }
 
 let summaryActivityId = null;
+let myActivityCache = {};
 function showSummaryModal(activityId) {
   summaryActivityId = activityId;
-  document.getElementById('summaryModal').classList.add('show');
+  const act = myActivityCache[activityId];
+  const modal = document.getElementById('summaryModal');
+  if (act && act.summaryTitle) {
+    document.getElementById('summaryTitle').value = act.summaryTitle || '';
+    document.getElementById('summaryContent').value = act.summaryContent || '';
+    modal.querySelector('.modal-title').textContent = '查看/修改总结';
+    document.getElementById('summarySubmitBtn').textContent = '更新总结';
+  } else {
+    document.getElementById('summaryForm').reset();
+    modal.querySelector('.modal-title').textContent = '提交活动总结';
+    document.getElementById('summarySubmitBtn').textContent = '提交审核';
+  }
+  modal.classList.add('show');
 }
 
 async function submitSummary() {
-  const form = document.getElementById('summaryForm');
-  const title = form.querySelector('input').value.trim();
-  const content = form.querySelector('textarea').value.trim();
+  const title = document.getElementById('summaryTitle').value.trim();
+  const content = document.getElementById('summaryContent').value.trim();
   if (!title || !content) { showToast('请填写完整信息', 'warning'); return; }
   try {
     await activityApi.submitSummary(summaryActivityId, { title, content });
     document.getElementById('summaryModal').classList.remove('show');
     showToast('总结已提交，等待管理员审核', 'success');
+    loadMyActivities();
   } catch (err) {
     showToast(err.message || '提交失败', 'error');
   }
@@ -333,16 +487,119 @@ document.getElementById('changePwdForm').addEventListener('submit', async functi
   }
 });
 
+// 加载已审核活动（管理员）
+async function loadReviewedActivities() {
+  const tbody = document.getElementById('reviewedActivityBody');
+  try {
+    const list = await api.get('/activity/reviewed', { pageSize: 50 });
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">暂无已审核活动</td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(a => `
+      <tr>
+        <td>${escHtml(a.title)}</td>
+        <td>${escHtml(a.schoolName || '')}</td>
+        <td>${(a.publishTime || '').split(' ')[0]}</td>
+        <td><span class="tag ${auditClassMap[a.auditState]}">${auditMap[a.auditState]}</span></td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">加载失败</td></tr>';
+  }
+}
+
+async function loadReviewedPosts() {
+  const tbody = document.getElementById('reviewedPostBody');
+  try {
+    const list = await api.get('/post/reviewed', { pageSize: 50 });
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">暂无已审核帖子</td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(p => `
+      <tr>
+        <td>${escHtml(p.title)}</td>
+        <td>${escHtml(p.authorName || '用户' + p.userId)}</td>
+        <td>${(p.publishTime || '').split(' ')[0]}</td>
+        <td><span class="tag ${auditClassMap[p.auditState]}">${auditMap[p.auditState]}</span></td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">加载失败</td></tr>';
+  }
+}
+
+async function loadReviewedSummaries() {
+  const tbody = document.getElementById('reviewedSummaryBody');
+  try {
+    const list = await api.get('/activity/summary/reviewed', { pageSize: 50 });
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">暂无已审核总结</td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(s => `
+      <tr>
+        <td>${escHtml(s.title || '')}</td>
+        <td>${escHtml(s.summaryTitle || '')}</td>
+        <td>${(s.summarySubmitTime || '').split(' ')[0]}</td>
+        <td><span class="tag ${auditClassMap[s.summaryAuditState]}">${auditMap[s.summaryAuditState]}</span></td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">加载失败</td></tr>';
+  }
+}
+
 function escHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
 }
 
+// 初始化标签页（根据角色过滤）
+(function() {
+  const user = getCurrentUser();
+  const perm = user ? user.userPermission : null;
+  let firstVisible = null;
+
+  document.querySelectorAll('#userTabs .tab-item').forEach(tab => {
+    const rolesStr = (tab.dataset.role || '').trim();
+    if (rolesStr && !rolesStr.split(',').map(Number).includes(perm)) {
+      tab.style.display = 'none';
+    } else {
+      if (!firstVisible) firstVisible = tab;
+    }
+  });
+
+  document.querySelectorAll('#userTabs .tab-item').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('#userTabs .tab-item').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+      document.getElementById('tab-' + tab.dataset.tab).style.display = 'block';
+    });
+  });
+
+  if (firstVisible) {
+    firstVisible.classList.add('active');
+    document.getElementById('tab-' + firstVisible.dataset.tab).style.display = 'block';
+  }
+})();
+
 loadProfile();
-loadMyRegistrations();
-loadMyActivities();
-loadMyPosts();
+(function() {
+  const user = getCurrentUser();
+  const perm = user ? user.userPermission : null;
+  if (perm === 1) loadMyRegistrations();
+  if (perm === 2) loadMyActivities();
+  if (perm === 3) {
+    loadReviewedActivities();
+    loadReviewedPosts();
+    loadReviewedSummaries();
+  }
+  if (perm !== 3) loadMyPosts();
+})();
 </script>
 </body>
 </html>

@@ -8,6 +8,7 @@ public class SchoolUser {
     private String address;
     private String license;
     private String principle;
+    private String schoolName;
     private String userPhone;
     private String registerTime;
 
@@ -25,6 +26,8 @@ public class SchoolUser {
     public void setLicense(String license) { this.license = license; }
     public String getPrinciple() { return principle; }
     public void setPrinciple(String principle) { this.principle = principle; }
+    public String getSchoolName() { return schoolName; }
+    public void setSchoolName(String schoolName) { this.schoolName = schoolName; }
     public String getUserPhone() { return userPhone; }
     public void setUserPhone(String userPhone) { this.userPhone = userPhone; }
     public String getRegisterTime() { return registerTime; }

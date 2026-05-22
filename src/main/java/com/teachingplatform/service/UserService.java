@@ -14,18 +14,21 @@ public class UserService {
         this.userDao = userDao;
     }
 
-    public Map<String, Object> login(String userId, String password, int role) {
-        return userDao.login(userId, password, role);
+    public boolean phoneExists(String phone) {
+        return userDao.existsByPhone(phone);
+    }
+
+    public Map<String, Object> login(String phone, String password, int role) {
+        return userDao.login(phone, password, role);
     }
 
     public boolean register(Map<String, String> data) {
-        String userId = data.get("userId");
-        if (userDao.exists(userId)) return false;
+        String phone = data.get("userPhone");
+        if (userDao.existsByPhone(phone)) return false;
 
         int permission = Integer.parseInt(data.get("userPermission"));
         if (permission == 1) {
             VolunteerUser vu = new VolunteerUser();
-            vu.setUserId(userId);
             vu.setUserPassword(data.get("password"));
             vu.setUserIdentity(data.get("userIdentity"));
             vu.setUserSex(data.get("userSex"));
@@ -34,8 +37,8 @@ public class UserService {
             return userDao.registerVolunteer(vu);
         } else {
             SchoolUser su = new SchoolUser();
-            su.setUserId(userId);
             su.setUserPassword(data.get("password"));
+            su.setSchoolName(data.get("schoolName"));
             su.setType(data.get("type"));
             su.setAddress(data.get("address"));
             su.setLicense(data.get("license"));
@@ -65,6 +68,7 @@ public class UserService {
         } else if (permission == 2) {
             SchoolUser su = new SchoolUser();
             su.setUserId(userId);
+            su.setSchoolName(data.get("schoolName"));
             su.setType(data.get("type"));
             su.setAddress(data.get("address"));
             su.setLicense(data.get("license"));

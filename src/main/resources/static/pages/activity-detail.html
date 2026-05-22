@@ -94,7 +94,7 @@ function getUrlParam(name) {
 async function loadDetail() {
   const id = getUrlParam('id');
   if (!id) { showToast('缺少活动ID', 'error'); return; }
-  currentActivityId = parseInt(id);
+  currentActivityId = id;
 
   try {
     const act = await activityApi.detail(id);

@@ -14,24 +14,29 @@ public class CommentService {
         this.commentDao = commentDao;
     }
 
-    public List<Comment> listByPost(int postId) {
+    public List<Comment> listByPost(String postId) {
         return commentDao.listByPost(postId);
     }
 
-    public boolean create(Comment c, int userId) {
+    public boolean create(Comment c, String userId) {
         c.setUserId(userId);
         return commentDao.create(c);
     }
 
-    public boolean update(Comment c, int userId) {
+    public boolean update(Comment c, String userId) {
         Comment existing = commentDao.findById(c.getCommentId());
-        if (existing == null || existing.getUserId() != userId) {
+        if (existing == null || !existing.getUserId().equals(userId)) {
             return false;
         }
         return commentDao.update(c);
     }
 
-    public boolean delete(int commentId) {
+    public boolean delete(String commentId, String userId, int permission) {
+        Comment existing = commentDao.findById(commentId);
+        if (existing == null) return false;
+        if (!existing.getUserId().equals(userId) && permission != 3) {
+            return false;
+        }
         return commentDao.delete(commentId);
     }
 }

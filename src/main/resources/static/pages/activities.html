@@ -3,25 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>支教信息发布平台</title>
-  <link rel="stylesheet" href="css/style.css">
-  <script src="js/api.js"></script>
+  <title>支教活动 - 支教信息发布平台</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/api.js"></script>
 </head>
 <body>
 
 <div id="header-placeholder"></div>
 
-<!-- 顶部横幅 -->
-<section style="background: linear-gradient(135deg, #EBF3FA 0%, #D4E6F9 100%); padding: 48px 0 40px;">
-  <div style="max-width:1200px; margin:0 auto; padding:0 20px; text-align:center;">
-    <h1 style="font-size:32px; color:var(--primary-dark); margin-bottom:10px;">让知识跨越山海</h1>
-    <p style="font-size:16px; color:var(--text-secondary); max-width:600px; margin:0 auto 20px;">
-      连接支教学校与热心志愿者，共同助力乡村教育
-    </p>
-  </div>
-</section>
-
 <main class="main">
+  <h1 class="page-title">支教活动</h1>
 
   <!-- 搜索栏 -->
   <div class="search-bar">
@@ -58,7 +49,6 @@
   </div>
 
   <!-- 活动列表 -->
-  <h2 class="card-title" style="margin-bottom:18px;">支教活动</h2>
   <div class="activity-grid" id="activityList">
     <div class="empty-state" style="grid-column:1/-1;">
       <div class="empty-icon">&#128269;</div>
@@ -67,32 +57,21 @@
   </div>
 
   <div class="pagination" id="pagination"></div>
-
-  <!-- 讨论区 -->
-  <div style="margin-top:40px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
-      <h2 class="card-title" style="margin-bottom:0;">讨论区</h2>
-      <a href="pages/discussion.html" style="font-size:14px;color:var(--primary);">查看全部 &rarr;</a>
-    </div>
-    <div class="discussion-grid" id="homeDiscussionList">
-      <div class="empty-state" style="grid-column:1/-1;"><p>加载中……</p></div>
-    </div>
-  </div>
 </main>
 
 <footer class="footer">
   <p>&copy; 2026 支教信息发布平台 · 南京航空航天大学</p>
 </footer>
 
-<script src="js/main.js"></script>
-<script src="js/api.js"></script>
+<script src="../js/main.js"></script>
+<script src="../js/api.js"></script>
 <script>
 const stateMap = { '0': '招募中', '1': '进行中', '2': '已结束' };
 const stateClassMap = { '0': 'tag-recruiting', '1': 'tag-ongoing', '2': 'tag-ended' };
 
 let currentPage = 1;
 let totalItems = 0;
-const pageSize = 6;
+const pageSize = 9;
 
 function renderActivities(activities) {
   const container = document.getElementById('activityList');
@@ -118,7 +97,7 @@ function renderActivities(activities) {
         ${escHtml(act.content)}
       </p>
       <div class="activity-footer">
-        <span>发布：${act.publishTime.split(' ')[0]}</span>
+        <span>发布：${(act.publishTime || '').split(' ')[0]}</span>
         <span style="color:var(--primary);font-weight:500;">查看详情 &rarr;</span>
       </div>
     </div>
@@ -138,7 +117,6 @@ function escHtml(str) {
   return div.innerHTML;
 }
 
-// 调用后端 API 获取活动列表
 async function loadActivities() {
   const keyword = document.getElementById('searchKeyword').value.trim();
   const region = document.getElementById('searchRegion').value.trim();
@@ -152,7 +130,6 @@ async function loadActivities() {
       page: currentPage,
       pageSize
     });
-    // 后端返回 { list: [], total: 100 } 格式
     const list = result.list || result;
     const total = result.total || list.length;
     totalItems = total;
@@ -160,9 +137,8 @@ async function loadActivities() {
     if (result.stats) updateStats(result.stats);
     renderPagination(total);
   } catch (err) {
-    showToast(err.message || '加载活动失败', 'error');
     document.getElementById('activityList').innerHTML =
-      '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">&#9888;</div><p>加载失败，请检查后端服务是否启动</p></div>';
+      '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">&#9888;</div><p>加载失败，请检查后端服务</p></div>';
   }
 }
 
@@ -180,7 +156,7 @@ function resetSearch() {
 }
 
 function viewDetail(id) {
-  window.location.href = `pages/activity-detail.html?id=${id}`;
+  window.location.href = 'activity-detail.html?id=' + id;
 }
 
 function renderPagination(total) {
@@ -200,41 +176,10 @@ function renderPagination(total) {
 function goPage(page) {
   currentPage = page;
   loadActivities();
-  window.scrollTo({ top: 400, behavior: 'smooth' });
+  window.scrollTo({ top: 300, behavior: 'smooth' });
 }
 
-// 加载讨论区
-async function loadHomeDiscussions() {
-  const container = document.getElementById('homeDiscussionList');
-  try {
-    const result = await postApi.list({ auditState: '1', pageSize: 5 });
-    const list = result.list || result || [];
-    if (!list.length) {
-      container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">&#128221;</div><p>暂无讨论帖子</p></div>';
-      return;
-    }
-    container.innerHTML = list.map(p => `
-      <div class="card discussion-card" onclick="window.location.href='pages/discussion.html'" style="cursor:pointer;">
-        <h4>${escHtml(p.title)}</h4>
-        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
-          ${escHtml((p.content || '').substring(0, 100))}
-        </p>
-        <div class="post-meta" style="font-size:13px;color:var(--text-muted);">
-          <span>&#128100; ${escHtml(p.authorName || '用户' + p.userId)}</span>
-          <span>&#128197; ${(p.publishTime || '').split(' ')[0]}</span>
-          <span>&#128172; ${p.commentCount || 0} 条评论</span>
-          ${p.activityTitle ? `<span style="color:var(--primary);">关联：${escHtml(p.activityTitle)}</span>` : ''}
-        </div>
-      </div>
-    `).join('');
-  } catch (err) {
-    container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">&#9888;</div><p>加载失败</p></div>';
-  }
-}
-
-// 初始化
 loadActivities();
-loadHomeDiscussions();
 </script>
 </body>
 </html>

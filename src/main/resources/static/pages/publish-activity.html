@@ -14,7 +14,7 @@
 <main class="main">
   <a href="../index.html" style="font-size:14px;color:var(--primary);display:inline-block;margin-bottom:20px;">&larr; 返回首页</a>
 
-  <div class="card" style="max-width:760px;">
+  <div class="card" style="max-width:900px;margin:0 auto;">
     <div class="card-header">
       <h2 class="card-title">发布支教招募信息</h2>
     </div>
@@ -54,13 +54,12 @@
 
       <div style="display:flex;gap:12px;margin-top:24px;">
         <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" disabled>提交审核</button>
-        <button type="button" class="btn btn-outline btn-lg" onclick="saveDraft()">保存草稿</button>
       </div>
     </form>
   </div>
 
   <!-- 我发布的活动列表 -->
-  <div class="card" style="margin-top:24px;max-width:760px;">
+  <div class="card" style="margin-top:24px;max-width:900px;margin:24px auto 0;">
     <div class="card-header">
       <h3 class="card-title">我发布的活动</h3>
     </div>
@@ -72,24 +71,86 @@
           </tr>
         </thead>
         <tbody id="myActivities">
-          <tr>
-            <td>凉山州昭觉县小学暑期支教</td>
-            <td>12</td>
-            <td><span class="tag tag-recruiting">招募中</span></td>
-            <td><span class="tag tag-approved">审核通过</span></td>
-            <td>2026-05-10</td>
-            <td>
-              <div class="action-group">
-                <button class="btn btn-outline btn-sm" onclick="showToast('编辑功能暂未开放', 'warning')">编辑</button>
-                <button class="btn btn-outline btn-sm" onclick="showToast('请提交活动总结', 'warning')">提交总结</button>
-              </div>
-            </td>
-          </tr>
+          <tr><td colspan="6" style="text-align:center;color:var(--text-muted);">加载中……</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 </main>
+
+<!-- 编辑活动弹窗 -->
+<div class="modal-overlay" id="editActivityModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">编辑活动信息</h3>
+      <button class="modal-close" onclick="document.getElementById('editActivityModal').classList.remove('show')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="editActivityForm">
+        <div class="form-group">
+          <label>活动标题</label>
+          <input type="text" id="editTitle" class="form-input" required maxlength="100">
+        </div>
+        <div class="form-group">
+          <label>活动内容</label>
+          <textarea id="editContent" class="form-input" rows="5" required></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>招募人数</label>
+            <input type="number" id="editRecruits" class="form-input" required min="1">
+          </div>
+          <div class="form-group">
+            <label>志愿时长（小时）</label>
+            <input type="number" id="editDuration" class="form-input" min="1">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>活动地址</label>
+          <input type="text" id="editAddress" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>活动状态</label>
+          <select id="editState" class="form-input">
+            <option value="0">招募中</option>
+            <option value="1">进行中</option>
+            <option value="2">已结束</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="document.getElementById('editActivityModal').classList.remove('show')">取消</button>
+      <button class="btn btn-primary" onclick="submitEditActivity()">保存修改</button>
+    </div>
+  </div>
+</div>
+
+<!-- 提交总结弹窗 -->
+<div class="modal-overlay" id="summaryModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">提交活动总结</h3>
+      <button class="modal-close" onclick="document.getElementById('summaryModal').classList.remove('show')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="summaryForm">
+        <div class="form-group">
+          <label>总结标题</label>
+          <input type="text" id="summaryTitle" class="form-input" placeholder="请输入总结标题" required>
+        </div>
+        <div class="form-group">
+          <label>总结内容</label>
+          <textarea id="summaryContent" class="form-input" rows="5" placeholder="请详细描述活动开展情况、教学成果等" required></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="document.getElementById('summaryModal').classList.remove('show')">取消</button>
+      <button class="btn btn-primary" onclick="submitSummary()">提交审核</button>
+    </div>
+  </div>
+</div>
 
 <footer class="footer">
   <p>&copy; 2026 支教信息发布平台 · 南京航空航天大学</p>
@@ -126,22 +187,118 @@ document.getElementById('publishForm').addEventListener('submit', async function
       address: document.getElementById('address').value.trim()
     });
     showToast('活动已提交，等待管理员审核', 'success');
-    setTimeout(() => { window.location.href = '../index.html'; }, 1500);
+    document.getElementById('publishForm').reset();
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('confirmInfo').checked = false;
+    loadMyActivities();
   } catch (err) {
     showToast(err.message || '发布失败', 'error');
   }
 });
 
-function saveDraft() {
-  showToast('草稿已保存', 'success');
+// ===== 活动编辑 =====
+let editActivityId = null;
+function showEditModal(actId) {
+  const act = myActivityCache[actId];
+  if (!act) return;
+  editActivityId = actId;
+  document.getElementById('editTitle').value = act.title || '';
+  document.getElementById('editContent').value = act.content || '';
+  document.getElementById('editRecruits').value = act.recruitsNumber || 1;
+  document.getElementById('editDuration').value = act.volunteerDuration || 0;
+  document.getElementById('editAddress').value = act.schoolAddress || '';
+  document.getElementById('editState').value = act.activityState || '0';
+  document.getElementById('editActivityModal').classList.add('show');
 }
 
-// 加载我发布的活动
-(async function loadMyActivities() {
+async function submitEditActivity() {
+  const title = document.getElementById('editTitle').value.trim();
+  const content = document.getElementById('editContent').value.trim();
+  if (!title || !content) { showToast('请填写完整信息', 'warning'); return; }
   try {
-    const result = await activityApi.list({ page: 1, pageSize: 50 });
-    const list = result.list || result;
+    await api.put('/activity/update/' + editActivityId, {
+      title,
+      content,
+      recruitsNumber: parseInt(document.getElementById('editRecruits').value),
+      volunteerDuration: parseInt(document.getElementById('editDuration').value),
+      address: document.getElementById('editAddress').value.trim(),
+      activityState: document.getElementById('editState').value
+    });
+    document.getElementById('editActivityModal').classList.remove('show');
+    showToast('活动已更新', 'success');
+    loadMyActivities();
+  } catch (err) {
+    showToast(err.message || '修改失败', 'error');
+  }
+}
+
+// ===== 活动状态变更（需确认） =====
+function changeActivityState(id, newState) {
+  const stateNames = { '0': '招募中', '1': '进行中', '2': '已结束' };
+  showModal('确认切换状态', `<p>确定将活动状态切换为<strong>${stateNames[newState]}</strong>吗？</p>`, async () => {
+    try {
+      await activityApi.changeState(id, newState);
+      showToast('状态已更新', 'success');
+      loadMyActivities();
+    } catch (err) {
+      showToast(err.message || '操作失败', 'error');
+    }
+  });
+}
+
+async function deleteActivity(id) {
+  showModal('确认删除', '<p>确定要删除该活动吗？删除后不可恢复。</p>', async () => {
+    try {
+      await activityApi.delete(id);
+      showToast('活动已删除', 'success');
+      loadMyActivities();
+    } catch (err) {
+      showToast(err.message || '删除失败', 'error');
+    }
+  });
+}
+
+// ===== 活动总结 =====
+let summaryActivityId = null;
+function showSummaryModal(activityId) {
+  summaryActivityId = activityId;
+  const act = myActivityCache[activityId];
+  const modal = document.getElementById('summaryModal');
+  if (act && act.summaryTitle) {
+    document.getElementById('summaryTitle').value = act.summaryTitle || '';
+    document.getElementById('summaryContent').value = act.summaryContent || '';
+    modal.querySelector('.modal-title').textContent = '查看/修改总结';
+    modal.querySelector('.modal-footer .btn-primary').textContent = '更新总结';
+  } else {
+    document.getElementById('summaryForm').reset();
+    modal.querySelector('.modal-title').textContent = '提交活动总结';
+    modal.querySelector('.modal-footer .btn-primary').textContent = '提交审核';
+  }
+  modal.classList.add('show');
+}
+
+async function submitSummary() {
+  const title = document.getElementById('summaryTitle').value.trim();
+  const content = document.getElementById('summaryContent').value.trim();
+  if (!title || !content) { showToast('请填写完整信息', 'warning'); return; }
+  try {
+    await activityApi.submitSummary(summaryActivityId, { title, content });
+    document.getElementById('summaryModal').classList.remove('show');
+    showToast('总结已提交，等待管理员审核', 'success');
+    loadMyActivities();
+  } catch (err) {
+    showToast(err.message || '提交失败', 'error');
+  }
+}
+
+// ===== 加载我的活动 =====
+let myActivityCache = {};
+async function loadMyActivities() {
+  try {
+    const list = await api.get('/activity/my');
     const tbody = document.getElementById('myActivities');
+    myActivityCache = {};
+    list.forEach(a => { myActivityCache[a.activityId] = a; });
     if (!list.length) {
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">暂无发布的活动</td></tr>';
       return;
@@ -150,13 +307,23 @@ function saveDraft() {
       <tr>
         <td>${escHtml(act.title)}</td>
         <td>${act.recruitsNumber}</td>
-        <td><span class="tag ${stateClassMap[act.activityState]}">${stateMap[act.activityState]}</span></td>
+        <td>
+          <span class="tag ${stateClassMap[act.activityState]}">${stateMap[act.activityState]}</span>
+          ${act.auditState === '1' && act.activityState !== '2' ? `<select class="form-input" style="width:110px;padding:4px 8px;font-size:13px;margin-left:6px;"
+            onchange="if(this.value)changeActivityState('${act.activityId}', this.value);this.value=''">
+            <option value="">切换状态</option>
+            <option value="0" ${act.activityState==='0'?'disabled':''}>招募中</option>
+            <option value="1" ${act.activityState==='1'?'disabled':''}>进行中</option>
+          </select>` : ''}
+        </td>
         <td><span class="tag ${auditClassMap[act.auditState]}">${auditMap[act.auditState]}</span></td>
         <td>${(act.publishTime || '').split(' ')[0]}</td>
         <td>
           <div class="action-group">
-            <button class="btn btn-outline btn-sm" onclick="showToast('编辑功能暂未开放', 'warning')">编辑</button>
-            <button class="btn btn-outline btn-sm" onclick="showToast('请提交活动总结', 'warning')">提交总结</button>
+            ${act.auditState === '0' ? `<button class="btn btn-outline btn-sm" onclick="showEditModal('${act.activityId}')">编辑</button>` : ''}
+            ${act.auditState === '1' && !act.summaryTitle ? `<button class="btn btn-primary btn-sm" onclick="showSummaryModal('${act.activityId}')">提交总结</button>` : ''}
+            ${act.summaryTitle ? `<button class="btn btn-outline btn-sm" onclick="showSummaryModal('${act.activityId}')">查看总结</button>` : ''}
+            <button class="btn btn-danger btn-sm" onclick="deleteActivity('${act.activityId}')">删除</button>
           </div>
         </td>
       </tr>
@@ -164,7 +331,16 @@ function saveDraft() {
   } catch (err) {
     // 后端未就绪时静默
   }
-})();
+}
+
+// 弹窗关闭
+['editActivityModal','summaryModal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('show');
+  });
+});
+
+loadMyActivities();
 
 function escHtml(str) {
   const div = document.createElement('div');
