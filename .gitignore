@@ -14,3 +14,6 @@ Thumbs.db
 
 # 依赖 (如果有的话)
 node_modules/
+
+# Maven 构建产物
+target/
