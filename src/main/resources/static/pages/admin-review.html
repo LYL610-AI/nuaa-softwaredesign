@@ -21,10 +21,6 @@
       <div class="stat-label">待审核活动</div>
     </div>
     <div class="card stat-card">
-      <div class="stat-num" style="color:var(--warning);" id="stat-registration">—</div>
-      <div class="stat-label">待审核报名</div>
-    </div>
-    <div class="card stat-card">
       <div class="stat-num" style="color:var(--warning);" id="stat-post">—</div>
       <div class="stat-label">待审核帖子</div>
     </div>
@@ -37,7 +33,6 @@
   <!-- 审核标签页 -->
   <div class="tabs">
     <button class="tab-item active" data-tab="activity">活动审核</button>
-    <button class="tab-item" data-tab="registration">报名审核</button>
     <button class="tab-item" data-tab="post">帖子审核</button>
     <button class="tab-item" data-tab="summary">总结审核</button>
   </div>
@@ -54,24 +49,6 @@
           </thead>
           <tbody id="reviewActivityBody">
             <tr><td colspan="7" style="text-align:center;color:var(--text-muted);">加载中……</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- 报名审核 -->
-  <div class="tab-content" id="tab-registration" style="display:none;">
-    <div class="card">
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>报名ID</th><th>活动名称</th><th>志愿者</th><th>性别</th><th>学历</th><th>报名时间</th><th>审核状态</th><th>操作</th>
-            </tr>
-          </thead>
-          <tbody id="reviewRegBody">
-            <tr><td colspan="8" style="text-align:center;color:var(--text-muted);">加载中……</td></tr>
           </tbody>
         </table>
       </div>
@@ -135,24 +112,6 @@ document.querySelectorAll('.tab-item').forEach(tab => {
   });
 });
 
-// 加载审核列表
-async function loadReviewList(type, tbodyId, columns, renderRow) {
-  const tbody = document.getElementById(tbodyId);
-  tbody.innerHTML = '<tr><td colspan="' + columns + '" style="text-align:center;color:var(--text-muted);">加载中……</td></tr>';
-  try {
-    const url = type === 'activity' ? '/activity/list' : type === 'registration' ? '/registration/list' : type === 'post' ? '/post/list' : '/activity/summary/list';
-    const result = await api.get(url, { auditState: '0', pageSize: 50 });
-    const list = result.list || result || [];
-    if (!list.length) {
-      tbody.innerHTML = '<tr><td colspan="' + columns + '" style="text-align:center;color:var(--text-muted);">暂无待审核项</td></tr>';
-      return;
-    }
-    tbody.innerHTML = list.map(item => renderRow(item)).join('');
-  } catch (err) {
-    tbody.innerHTML = '<tr><td colspan="' + columns + '" style="text-align:center;color:var(--text-muted);">加载失败，请检查后端服务</td></tr>';
-  }
-}
-
 function loadActivities() {
   const tbody = document.getElementById('reviewActivityBody');
   tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">加载中……</td></tr>';
@@ -181,39 +140,6 @@ function loadActivities() {
     `).join('');
   }).catch(() => {
     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">加载失败</td></tr>';
-  });
-}
-
-function loadRegistrations() {
-  const tbody = document.getElementById('reviewRegBody');
-  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);">加载中……</td></tr>';
-  // Admin sees all pending registrations
-  api.get('/registration/list/all', { auditState: '0', pageSize: 50 }).then(result => {
-    const list = result.list || result || [];
-    if (!list.length) {
-      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);">暂无待审核报名</td></tr>';
-      return;
-    }
-    tbody.innerHTML = list.map(r => `
-      <tr>
-        <td>${r.registrationId}</td>
-        <td>${escHtml(r.activityTitle || '活动' + r.activityId)}</td>
-        <td>${escHtml(r.realName)}</td>
-        <td>${r.gender || '—'}</td>
-        <td>${r.degree || '—'}</td>
-        <td>${r.entryTime}</td>
-        <td><span class="tag tag-pending">待审核</span></td>
-        <td>
-          <div class="action-group">
-            <button class="btn btn-outline btn-sm" onclick="viewRegDetail('${r.registrationId}')">查看</button>
-            <button class="btn btn-success btn-sm" onclick="reviewItem('registration', '${r.registrationId}', '1')">通过</button>
-            <button class="btn btn-danger btn-sm" onclick="reviewItem('registration', '${r.registrationId}', '2')">退回</button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
-  }).catch(() => {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);">加载失败</td></tr>';
   });
 }
 
@@ -262,7 +188,7 @@ function loadSummaries() {
         <td>${escHtml(s.activityTitle || '')}</td>
         <td>${escHtml(s.schoolName || '')}</td>
         <td>${escHtml(s.summaryTitle || '')}</td>
-        <td>${(s.submitTime || '').split(' ')[0]}</td>
+        <td>${(s.summarySubmitTime || '').split(' ')[0]}</td>
         <td><span class="tag tag-pending">待审核</span></td>
         <td>
           <div class="action-group">
@@ -280,7 +206,7 @@ function loadSummaries() {
 
 // 审核操作
 function reviewItem(type, id, state) {
-  const typeNames = { activity: '活动', registration: '报名', post: '帖子', summary: '总结' };
+  const typeNames = { activity: '活动', post: '帖子', summary: '总结' };
   const stateText = state === '1' ? '通过' : '退回';
 
   let contentHtml = `<p>确认<strong>${stateText}</strong>该${typeNames[type]}申请？</p>`;
@@ -299,14 +225,11 @@ function reviewItem(type, id, state) {
     try {
       const reason = state === '2' ? (document.getElementById('reasonText')?.value || '') : '';
       if (type === 'activity') await activityApi.review(id, state, reason);
-      else if (type === 'registration') await registrationApi.review(id, state);
       else if (type === 'post') await postApi.review(id, state);
       else if (type === 'summary') await activityApi.reviewSummary(id, state);
       showToast(`${typeNames[type]}已${stateText}`, 'success');
       loadPendingCounts();
-      // 刷新对应列表
       if (type === 'activity') loadActivities();
-      else if (type === 'registration') loadRegistrations();
       else if (type === 'post') loadPosts();
       else if (type === 'summary') loadSummaries();
     } catch (err) {
@@ -333,24 +256,6 @@ async function viewActivityDetail(id) {
       <p><strong>发布时间：</strong>${a.publishTime}</p>
       <p><strong>活动内容：</strong></p>
       <p style="white-space:pre-wrap;line-height:1.8;color:var(--text-secondary);">${escHtml(a.content)}</p>
-    `, null);
-  } catch (err) { showToast('加载详情失败', 'error'); }
-}
-
-async function viewRegDetail(id) {
-  try {
-    const data = await api.get('/registration/list/all', { pageSize: 100 });
-    const list = data.list || data || [];
-    const r = list.find(x => x.registrationId === id);
-    if (!r) { showToast('未找到报名记录', 'error'); return; }
-    showModal('报名详情', `
-      <p><strong>志愿者：</strong>${escHtml(r.realName)}</p>
-      <p><strong>性别：</strong>${r.gender || '—'} | <strong>学历：</strong>${r.degree || '—'}</p>
-      <p><strong>身份证号：</strong>${r.idNumber || '—'}</p>
-      <p><strong>手机号：</strong>${r.phoneNumber || '—'}</p>
-      <p><strong>学校/单位：</strong>${escHtml(r.introduce || '—')}</p>
-      <p><strong>报名时间：</strong>${r.entryTime}</p>
-      <p><strong>关联活动：</strong>${escHtml(r.activityTitle || '')}</p>
     `, null);
   } catch (err) { showToast('加载详情失败', 'error'); }
 }
@@ -389,15 +294,13 @@ async function viewSummaryDetail(id) {
 // 加载待审核数量
 async function loadPendingCounts() {
   try {
-    const [actRes, regRes, postRes, sumRes] = await Promise.all([
+    const [actRes, postRes, sumRes] = await Promise.all([
       api.get('/activity/list', { auditState: '0', pageSize: 999 }),
-      api.get('/registration/list/all', { auditState: '0', pageSize: 999 }),
       api.get('/post/list', { auditState: '0', pageSize: 999 }),
       api.get('/activity/summary/list', { auditState: '0', pageSize: 999 })
     ]);
     const count = (res) => res.total != null ? res.total : (Array.isArray(res) ? res.length : (res.list || []).length);
     document.getElementById('stat-activity').textContent = count(actRes);
-    document.getElementById('stat-registration').textContent = count(regRes);
     document.getElementById('stat-post').textContent = count(postRes);
     document.getElementById('stat-summary').textContent = count(sumRes);
   } catch (err) { /* silent */ }
@@ -406,7 +309,6 @@ async function loadPendingCounts() {
 // 初始化加载
 loadPendingCounts();
 loadActivities();
-loadRegistrations();
 loadPosts();
 loadSummaries();
 </script>

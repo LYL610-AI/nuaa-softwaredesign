@@ -19,7 +19,7 @@ public class PostDao {
     public List<Post> list(String activityId, String auditState, int page, int pageSize) {
         StringBuilder sql = new StringBuilder(
             "SELECT p.*, " +
-            "COALESCE(v.user_identity, s.principle, a2.user_id) as author_name, " +
+            "COALESCE(v.user_name, s.principle, a2.user_id) as author_name, " +
             "act.title as activity_title, " +
             "(SELECT COUNT(*) FROM comment c WHERE c.post_id = p.post_id) as comment_count " +
             "FROM post p " +
@@ -47,7 +47,7 @@ public class PostDao {
     }
 
     public Post detail(String postId) {
-        String sql = "SELECT p.*, COALESCE(v.user_identity, s.principle, a.user_id) as author_name, act.title as activity_title FROM post p " +
+        String sql = "SELECT p.*, COALESCE(v.user_name, s.principle, a.user_id) as author_name, act.title as activity_title FROM post p " +
                      "LEFT JOIN volunteer_user v ON p.user_id = v.user_id " +
                      "LEFT JOIN school_user s ON p.user_id = s.user_id " +
                      "LEFT JOIN administrator a ON p.user_id = a.user_id " +
@@ -79,7 +79,7 @@ public class PostDao {
     }
 
     public List<Post> listReviewed(int page, int pageSize) {
-        String sql = "SELECT p.*, COALESCE(v.user_identity, s.principle, a2.user_id) as author_name, act.title as activity_title, " +
+        String sql = "SELECT p.*, COALESCE(v.user_name, s.principle, a2.user_id) as author_name, act.title as activity_title, " +
                      "(SELECT COUNT(*) FROM comment c WHERE c.post_id = p.post_id) as comment_count " +
                      "FROM post p " +
                      "LEFT JOIN volunteer_user v ON p.user_id = v.user_id " +
@@ -91,7 +91,7 @@ public class PostDao {
     }
 
     public List<Post> myPosts(String userId) {
-        String sql = "SELECT p.*, COALESCE(v.user_identity, s.principle) as author_name, act.title as activity_title, " +
+        String sql = "SELECT p.*, COALESCE(v.user_name, s.principle) as author_name, act.title as activity_title, " +
                      "(SELECT COUNT(*) FROM comment c WHERE c.post_id = p.post_id) as comment_count " +
                      "FROM post p " +
                      "LEFT JOIN volunteer_user v ON p.user_id = v.user_id " +

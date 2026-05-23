@@ -15,8 +15,15 @@ public class RegistrationService {
     }
 
     public boolean submit(Registration reg, String userId) {
+        if (registrationDao.existsByUserAndActivity(userId, reg.getActivityId())) {
+            return false;
+        }
         reg.setUserId(userId);
         return registrationDao.submit(reg);
+    }
+
+    public boolean hasRegistered(String userId, String activityId) {
+        return registrationDao.existsByUserAndActivity(userId, activityId);
     }
 
     public boolean cancel(String registrationId) {

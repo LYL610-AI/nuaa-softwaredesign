@@ -120,7 +120,7 @@ function initHeader() {
       <a href="../pages/discussion.html" class="${pageName === 'discussion' ? 'active' : ''}">讨论区</a>
     `;
     actionsHtml = `
-      <span style="font-size:14px;color:var(--text-secondary);">${user.userIdentity || user.userId || '志愿者'}</span>
+      <span style="font-size:14px;color:var(--text-secondary);">${user.userName || user.userId || '志愿者'}</span>
       <a href="../pages/personal-center.html" class="btn btn-outline btn-sm">个人中心</a>
       <button class="btn btn-outline btn-sm" onclick="logout()">退出</button>
     `;
@@ -148,6 +148,7 @@ function initHeader() {
       <a href="../pages/activities.html" class="${pageName === 'activities' || pageName === 'activity-detail' ? 'active' : ''}">支教活动</a>
       <a href="../pages/discussion.html" class="${pageName === 'discussion' ? 'active' : ''}">讨论区</a>
       <a href="../pages/admin-review.html" class="${pageName === 'admin-review' ? 'active' : ''}">审核管理</a>
+      <a href="../pages/admin-users.html" class="${pageName === 'admin-users' ? 'active' : ''}">用户管理</a>
     `;
     actionsHtml = `
       <span style="font-size:14px;color:var(--text-secondary);">${user.userId || '管理员'}</span>

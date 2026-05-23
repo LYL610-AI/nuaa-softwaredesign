@@ -28,6 +28,8 @@ public class Registration {
     public void setDegree(String degree) { this.degree = degree; }
     public String getIntroduce() { return introduce; }
     public void setIntroduce(String introduce) { this.introduce = introduce; }
+    public String getSchoolWork() { return introduce; }
+    public void setSchoolWork(String schoolWork) { this.introduce = schoolWork; }
     public String getAuditState() { return auditState; }
     public void setAuditState(String auditState) { this.auditState = auditState; }
     public String getEntryTime() { return entryTime; }

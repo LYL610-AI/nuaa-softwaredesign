@@ -40,7 +40,16 @@ public class RegistrationController {
     public Result submit(@RequestBody Registration reg, HttpServletRequest req) {
         String userId = (String) req.getAttribute("userId");
         boolean ok = service.submit(reg, userId);
-        return ok ? Result.ok() : Result.error(500, "报名失败");
+        if (!ok) {
+            return Result.error(400, "您已报名过该活动，不能重复报名");
+        }
+        return Result.ok();
+    }
+
+    @GetMapping("/check/{activityId}")
+    public Result check(@PathVariable String activityId, HttpServletRequest req) {
+        String userId = (String) req.getAttribute("userId");
+        return Result.ok(service.hasRegistered(userId, activityId));
     }
 
     @DeleteMapping("/cancel/{id}")
@@ -50,7 +59,11 @@ public class RegistrationController {
     }
 
     @PutMapping("/review/{id}")
-    public Result review(@PathVariable String id, @RequestBody Map<String, String> body) {
+    public Result review(@PathVariable String id, @RequestBody Map<String, String> body, HttpServletRequest req) {
+        int permission = (int) req.getAttribute("permission");
+        if (permission != 2) {
+            return Result.error(403, "仅学校用户可审核报名");
+        }
         String state = body.get("auditState");
         boolean ok = service.review(id, state);
         return ok ? Result.ok() : Result.error(500, "审核失败");

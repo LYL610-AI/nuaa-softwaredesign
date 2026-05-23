@@ -35,10 +35,6 @@
           <input type="text" class="form-input" id="regRealName" placeholder="请输入真实姓名" required>
         </div>
         <div class="form-group">
-          <label>身份证号 <span style="color:var(--danger);">*</span></label>
-          <input type="text" class="form-input" id="regIdNumber" placeholder="请输入18位身份证号" required maxlength="18">
-        </div>
-        <div class="form-group">
           <label>手机号 <span style="color:var(--danger);">*</span></label>
           <input type="tel" class="form-input" id="regPhone" placeholder="请输入手机号" required pattern="1[3-9]\d{9}">
         </div>
@@ -64,8 +60,8 @@
           </div>
         </div>
         <div class="form-group">
-          <label>学校 / 工作单位</label>
-          <input type="text" class="form-input" id="regSchoolWork" placeholder="请输入学校或工作单位">
+          <label>自我介绍</label>
+          <textarea class="form-input" id="regSchoolWork" rows="4" placeholder="请简要介绍自己，如教育背景、教学经验、特长等"></textarea>
         </div>
       </form>
     </div>
@@ -99,11 +95,12 @@ async function loadDetail() {
   try {
     const act = await activityApi.detail(id);
     renderDetail(act);
+    checkRegistrationStatus();
 
-    // 学校用户/管理员额外加载报名列表
+    // 学校用户额外加载报名列表
     const user = getCurrentUser();
     const permission = user ? user.userPermission : null;
-    if (permission === ROLE.SCHOOL || permission === ROLE.ADMIN) {
+    if (permission === ROLE.SCHOOL) {
       await loadRegistrations(id);
     }
   } catch (err) {
@@ -137,15 +134,36 @@ function renderDetail(act) {
         <h4 style="margin-bottom:10px;">活动内容</h4>
         <p style="line-height:1.8;color:var(--text-secondary);white-space:pre-wrap;">${escHtml(act.content)}</p>
       </div>
+      ${act.summaryAuditState === '1' ? `
+        <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
+          <h4 style="margin-bottom:10px;color:var(--primary);">活动总结：${escHtml(act.summaryTitle || '')}</h4>
+          <p style="line-height:1.8;color:var(--text-secondary);white-space:pre-wrap;">${escHtml(act.summaryContent || '')}</p>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:8px;">提交时间：${act.summarySubmitTime || '—'}</p>
+        </div>
+      ` : ''}
       ${act.activityState === '0' && permission === ROLE.VOLUNTEER ? `
         <div style="margin-top:24px;">
-          <button class="btn btn-primary btn-lg" onclick="openRegisterModal()">我要报名</button>
+          <button class="btn btn-primary btn-lg" id="registerBtn" onclick="openRegisterModal()">我要报名</button>
         </div>
       ` : ''}
     </div>
 
     <div id="registrationSection"></div>
   `;
+}
+
+async function checkRegistrationStatus() {
+  const btn = document.getElementById('registerBtn');
+  if (!btn || !isLoggedIn()) return;
+  try {
+    const registered = await registrationApi.check(currentActivityId);
+    if (registered) {
+      btn.textContent = '您已报名该活动';
+      btn.className = 'btn btn-outline btn-lg';
+      btn.disabled = true;
+      btn.onclick = null;
+    }
+  } catch (err) { /* silent */ }
 }
 
 async function loadRegistrations(activityId) {
@@ -162,7 +180,7 @@ async function loadRegistrations(activityId) {
         <div class="table-wrapper">
           <table>
             <thead>
-              <tr><th>姓名</th><th>性别</th><th>学历</th><th>学校/单位</th><th>报名时间</th><th>审核状态</th><th>操作</th></tr>
+              <tr><th>姓名</th><th>性别</th><th>学历</th><th>自我介绍</th><th>报名时间</th><th>审核状态</th><th>操作</th></tr>
             </thead>
             <tbody>
               ${list.map(r => `
@@ -176,8 +194,8 @@ async function loadRegistrations(activityId) {
                   <td>
                     ${r.auditState === '0' ? `
                       <div class="action-group">
-                        <button class="btn btn-success btn-sm" onclick="reviewReg(${r.registrationId}, '1')">通过</button>
-                        <button class="btn btn-danger btn-sm" onclick="reviewReg(${r.registrationId}, '2')">退回</button>
+                        <button class="btn btn-success btn-sm" onclick="reviewReg('${r.registrationId}', '1')">通过</button>
+                        <button class="btn btn-danger btn-sm" onclick="reviewReg('${r.registrationId}', '2')">退回</button>
                       </div>
                     ` : '<span style="color:var(--text-muted);font-size:13px;">已处理</span>'}
                   </td>
@@ -208,18 +226,13 @@ function closeModal() {
 
 async function submitRegistration() {
   const realName = document.getElementById('regRealName').value.trim();
-  const idNumber = document.getElementById('regIdNumber').value.trim();
   const phoneNumber = document.getElementById('regPhone').value.trim();
   const gender = document.getElementById('regGender').value;
   const degree = document.getElementById('regDegree').value;
   const schoolWork = document.getElementById('regSchoolWork').value.trim();
 
-  if (!realName || !idNumber || !phoneNumber) {
+  if (!realName || !phoneNumber) {
     showToast('请填写必填信息', 'warning');
-    return;
-  }
-  if (idNumber.length !== 18) {
-    showToast('请输入正确的18位身份证号', 'warning');
     return;
   }
 
@@ -227,7 +240,6 @@ async function submitRegistration() {
     await registrationApi.submit({
       activityId: currentActivityId,
       realName,
-      idNumber,
       phoneNumber,
       gender,
       degree,

@@ -16,6 +16,13 @@ public class RegistrationDao {
         this.jdbc = jdbc;
     }
 
+    public boolean existsByUserAndActivity(String userId, String activityId) {
+        Integer count = jdbc.queryForObject(
+            "SELECT COUNT(*) FROM registration WHERE user_id = ? AND activity_id = ?",
+            Integer.class, userId, activityId);
+        return count != null && count > 0;
+    }
+
     public boolean submit(Registration reg) {
         reg.setRegistrationId(IdGenerator.generate());
         String sql = "INSERT INTO registration (registration_id, phone_number, real_name, id_number, gender, degree, introduce, audit_state, entry_time, activity_id, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, '0', NOW(), ?, ?)";

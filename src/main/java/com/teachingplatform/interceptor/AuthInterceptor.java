@@ -22,7 +22,15 @@ public class AuthInterceptor implements HandlerInterceptor {
                 uri.contains("/api/activity/detail/") ||
                 uri.contains("/api/post/list") ||
                 uri.contains("/api/post/detail/") ||
-                uri.contains("/api/comment/list/"))) {
+                uri.contains("/api/comment/list/") ||
+                uri.contains("/api/user/checkPhone") ||
+                uri.contains("/api/user/checkIdNumber") ||
+                uri.contains("/api/user/checkLicense"))) {
+            return true;
+        }
+
+        // 公开的 POST 接口（找回密码）
+        if ("POST".equals(method) && uri.contains("/api/user/recover-password")) {
             return true;
         }
 

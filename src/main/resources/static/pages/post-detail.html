@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>帖子详情 - 支教信息发布平台</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/api.js"></script>
+</head>
+<body>
+
+<div id="header-placeholder"></div>
+
+<main class="main">
+  <a href="discussion.html" style="font-size:14px;color:var(--primary);display:inline-block;margin-bottom:20px;">&larr; 返回讨论区</a>
+
+  <div class="card" id="postContent">
+    <div class="empty-state"><p>加载中……</p></div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 style="margin-bottom:16px;">评论 (<span id="commentCount">0</span>)</h3>
+    <div id="commentList"></div>
+
+    <div style="display:flex;gap:10px;margin-top:20px;">
+      <input type="text" class="form-input" id="commentInput" placeholder="写下你的评论……" style="flex:1;">
+      <button class="btn btn-primary" onclick="submitComment()">发表评论</button>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <p>&copy; 2026 支教信息发布平台 · 南京航空航天大学</p>
+</footer>
+
+<script src="../js/main.js"></script>
+<script src="../js/api.js"></script>
+<script>
+let currentPostId = null;
+
+function getUrlParam(name) {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(name);
+}
+
+function escHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+async function loadPost() {
+  const id = getUrlParam('id');
+  if (!id) { showToast('缺少帖子ID', 'error'); return; }
+  currentPostId = id;
+
+  try {
+    const p = await postApi.detail(id);
+    renderPost(p);
+    await loadComments();
+  } catch (err) {
+    document.getElementById('postContent').innerHTML =
+      '<div class="empty-state"><div class="empty-icon">&#9888;</div><p>加载帖子失败</p></div>';
+  }
+}
+
+function renderPost(p) {
+  document.getElementById('postContent').innerHTML = `
+    <div class="card-header">
+      <h2 class="card-title">${escHtml(p.title)}</h2>
+    </div>
+    <div class="post-meta" style="margin-bottom:16px;">
+      <span>&#128100; ${escHtml(p.authorName || '用户' + p.userId)}</span>
+      <span>&#128197; ${(p.publishTime || '').split(' ')[0]}</span>
+      ${p.activityTitle ? `<span style="color:var(--primary);">关联活动：${escHtml(p.activityTitle)}</span>` : ''}
+    </div>
+    <p style="line-height:1.8;color:var(--text-secondary);white-space:pre-wrap;">${escHtml(p.content)}</p>
+  `;
+}
+
+async function loadComments() {
+  try {
+    const comments = await commentApi.list(currentPostId);
+    const curUser = getCurrentUser();
+    const curPerm = curUser ? curUser.userPermission : null;
+    const curUserId = curUser ? curUser.userId : null;
+
+    document.getElementById('commentCount').textContent = comments.length;
+    const container = document.getElementById('commentList');
+
+    if (!comments.length) {
+      container.innerHTML = '<div class="empty-state"><p>暂无评论，快来发表第一条评论吧</p></div>';
+      return;
+    }
+
+    container.innerHTML = comments.map(c => {
+      const canDelete = curPerm === 3 || c.userId === curUserId;
+      return `
+      <div class="comment-item">
+        <div class="comment-header">
+          <span class="comment-author">${escHtml(c.authorName || '用户' + c.userId)}</span>
+          <span class="comment-time">${c.publishTime}</span>
+        </div>
+        <div class="comment-content">${escHtml(c.content)}</div>
+        <div class="comment-actions">
+          ${canDelete ? `<button onclick="deleteComment('${c.commentId}')">删除</button>` : ''}
+        </div>
+      </div>
+    `}).join('');
+  } catch (err) {
+    document.getElementById('commentList').innerHTML =
+      '<div class="empty-state"><p>加载评论失败</p></div>';
+  }
+}
+
+async function submitComment() {
+  const input = document.getElementById('commentInput');
+  const content = input.value.trim();
+  if (!content) { showToast('请输入评论内容', 'warning'); return; }
+  if (!isLoggedIn()) { showToast('请先登录', 'warning'); return; }
+  try {
+    await commentApi.create({ postId: currentPostId, content });
+    showToast('评论发表成功', 'success');
+    input.value = '';
+    await loadComments();
+  } catch (err) {
+    showToast(err.message || '评论失败', 'error');
+  }
+}
+
+async function deleteComment(id) {
+  showModal('删除评论', '<p>确定要删除该评论吗？</p>', async () => {
+    try {
+      await commentApi.delete(id);
+      showToast('评论已删除', 'success');
+      await loadComments();
+    } catch (err) {
+      showToast(err.message || '删除失败', 'error');
+    }
+  });
+}
+
+loadPost();
+</script>
+</body>
+</html>

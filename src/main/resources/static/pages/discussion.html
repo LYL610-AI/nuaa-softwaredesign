@@ -22,9 +22,37 @@
     }
     .activity-select-item:hover { background: var(--primary-bg); }
     .activity-select-item.active { background: var(--primary-bg); color: var(--primary); font-weight: 500; }
-    .comment-input-area { display: flex; gap: 10px; margin-top: 20px; }
-    .comment-input-area input { flex: 1; }
     .activity-filter-list { max-height: 300px; overflow-y: auto; }
+    .searchable-select { position: relative; }
+    .searchable-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      max-height: 220px;
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .searchable-dropdown .searchable-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+      transition: var(--transition);
+    }
+    .searchable-dropdown .searchable-item:last-child { border-bottom: none; }
+    .searchable-dropdown .searchable-item:hover { background: var(--primary-bg); color: var(--primary); }
+    .searchable-dropdown .searchable-empty {
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -64,23 +92,6 @@
         </div>
       </div>
 
-      <!-- 帖子详情（点击帖子后显示） -->
-      <div class="card" id="postDetail" style="display:none;">
-        <button style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:13px;margin-bottom:12px;"
-          onclick="closePostDetail()">&larr; 返回帖子列表</button>
-        <h3 id="detailTitle" style="margin-bottom:8px;"></h3>
-        <div class="post-meta" style="margin-bottom:14px;" id="detailMeta"></div>
-        <p style="line-height:1.8;color:var(--text-secondary);margin-bottom:20px;" id="detailContent"></p>
-
-        <h4 style="font-size:15px;margin-bottom:12px;">评论 (<span id="commentCount">0</span>)</h4>
-        <div id="commentList"></div>
-
-        <!-- 发表评论 -->
-        <div class="comment-input-area">
-          <input type="text" class="form-input" id="commentInput" placeholder="写下你的评论……">
-          <button class="btn btn-primary btn-sm" onclick="submitComment()">发表</button>
-        </div>
-      </div>
     </div>
 
   </div>
@@ -97,9 +108,11 @@
       <form id="createPostForm">
         <div class="form-group">
           <label>关联活动 <span style="color:var(--danger);">*</span></label>
-          <select class="form-input" id="postActivitySelect" required>
-            <option value="">请选择活动</option>
-          </select>
+          <div class="searchable-select" id="activitySelectWrapper">
+            <input type="text" class="form-input" id="postActivitySearch" placeholder="输入关键字搜索活动..." autocomplete="off">
+            <input type="hidden" id="postActivityId" value="">
+            <div class="searchable-dropdown" id="activityDropdown" style="display:none;"></div>
+          </div>
         </div>
         <div class="form-group">
           <label>帖子标题 <span style="color:var(--danger);">*</span></label>
@@ -211,76 +224,8 @@ function filterPosts() {
   `).join('');
 }
 
-// 查看帖子详情 + 评论
-async function viewPost(postId) {
-  currentPostId = postId;
-  document.getElementById('postDetail').style.display = 'block';
-
-  try {
-    const p = await postApi.detail(postId);
-    document.getElementById('detailTitle').textContent = p.title;
-    document.getElementById('detailMeta').innerHTML = `
-      <span>&#128100; ${escHtml(p.authorName || '用户' + p.userId)}</span>
-      <span>&#128197; ${(p.publishTime || '').split(' ')[0]}</span>
-      <span style="color:var(--primary);">关联：${escHtml(p.activityTitle || '')}</span>
-    `;
-    document.getElementById('detailContent').textContent = p.content;
-
-    // 加载评论
-    const comments = await commentApi.list(postId);
-    const curUser = getCurrentUser();
-    const curPerm = curUser ? curUser.userPermission : null;
-    const curUserId = curUser ? curUser.userId : null;
-    document.getElementById('commentCount').textContent = comments.length;
-    document.getElementById('commentList').innerHTML = comments.map(c => {
-      const canDelete = curPerm === 3 || c.userId === curUserId;
-      return `
-      <div class="comment-item">
-        <div class="comment-header">
-          <span class="comment-author">${escHtml(c.authorName || '用户' + c.userId)}</span>
-          <span class="comment-time">${c.publishTime}</span>
-        </div>
-        <div class="comment-content">${escHtml(c.content)}</div>
-        <div class="comment-actions">
-          ${canDelete ? `<button onclick="deleteComment('${c.commentId}')">删除</button>` : ''}
-        </div>
-      </div>
-    `}).join('');
-  } catch (err) {
-    showToast('加载帖子详情失败', 'error');
-  }
-}
-
-function closePostDetail() {
-  document.getElementById('postDetail').style.display = 'none';
-  currentPostId = null;
-}
-
-async function submitComment() {
-  const input = document.getElementById('commentInput');
-  const content = input.value.trim();
-  if (!content) { showToast('请输入评论内容', 'warning'); return; }
-  if (!isLoggedIn()) { showToast('请先登录', 'warning'); return; }
-  try {
-    await commentApi.create({ postId: currentPostId, content });
-    showToast('评论发表成功', 'success');
-    input.value = '';
-    await viewPost(currentPostId);
-  } catch (err) {
-    showToast(err.message || '评论失败', 'error');
-  }
-}
-
-async function deleteComment(id) {
-  showModal('删除评论', '<p>确定要删除该评论吗？</p>', async () => {
-    try {
-      await commentApi.delete(id);
-      showToast('评论已删除', 'success');
-      await viewPost(currentPostId);
-    } catch (err) {
-      showToast(err.message || '删除失败', 'error');
-    }
-  });
+function viewPost(postId) {
+  window.location.href = 'post-detail.html?id=' + postId;
 }
 
 function showCreatePost() {
@@ -289,21 +234,52 @@ function showCreatePost() {
     setTimeout(() => { window.location.href = 'login.html'; }, 1000);
     return;
   }
-  // 动态填充活动选项
-  const select = document.getElementById('postActivitySelect');
-  select.innerHTML = '<option value="">请选择活动</option>' +
-    allActivities.map(a => `<option value="${a.activityId}">${escHtml(a.title)}</option>`).join('');
+  document.getElementById('postActivitySearch').value = '';
+  document.getElementById('postActivityId').value = '';
+  document.getElementById('activityDropdown').style.display = 'none';
   document.getElementById('createPostModal').classList.add('show');
 }
 
+document.getElementById('postActivitySearch').addEventListener('input', function() {
+  const keyword = this.value.trim().toLowerCase();
+  const dropdown = document.getElementById('activityDropdown');
+  const filtered = keyword
+    ? allActivities.filter(a => (a.title || '').toLowerCase().includes(keyword))
+    : allActivities;
+  if (filtered.length === 0) {
+    dropdown.innerHTML = '<div class="searchable-empty">无匹配活动</div>';
+  } else {
+    dropdown.innerHTML = filtered.map(a =>
+      `<div class="searchable-item" data-id="${a.activityId}" data-title="${escHtml(a.title)}">${escHtml(a.title)}</div>`
+    ).join('');
+  }
+  dropdown.style.display = 'block';
+});
+
+document.getElementById('activityDropdown').addEventListener('click', function(e) {
+  const item = e.target.closest('.searchable-item');
+  if (!item) return;
+  document.getElementById('postActivitySearch').value = item.dataset.title;
+  document.getElementById('postActivityId').value = item.dataset.id;
+  this.style.display = 'none';
+});
+
+document.addEventListener('click', function(e) {
+  const wrapper = document.getElementById('activitySelectWrapper');
+  if (wrapper && !wrapper.contains(e.target)) {
+    document.getElementById('activityDropdown').style.display = 'none';
+  }
+});
+
 async function submitPost() {
   const form = document.getElementById('createPostForm');
-  const select = form.querySelector('select');
-  const title = form.querySelector('input').value.trim();
+  const activityId = document.getElementById('postActivityId').value;
+  const inputs = form.querySelectorAll('input[type="text"]');
+  const title = inputs[0].value.trim();
   const content = form.querySelector('textarea').value.trim();
-  if (!select.value || !title || !content) { showToast('请填写完整信息', 'warning'); return; }
+  if (!activityId || !title || !content) { showToast('请填写完整信息', 'warning'); return; }
   try {
-    await postApi.create({ activityId: select.value, title, content });
+    await postApi.create({ activityId, title, content });
     document.getElementById('createPostModal').classList.remove('show');
     showToast('帖子已提交，等待管理员审核', 'success');
     await loadPosts(currentFilterId);

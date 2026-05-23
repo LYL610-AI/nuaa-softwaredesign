@@ -62,9 +62,13 @@ const userApi = {
   login:    (phone, password, role) => api.post('/user/login', { phone, password, role }),
   register: (data) => api.post('/user/register', data),
   checkPhone: (phone) => api.get('/user/checkPhone', { phone }),
+  checkIdNumber: (idNumber) => api.get('/user/checkIdNumber', { idNumber }),
+  checkLicense: (license) => api.get('/user/checkLicense', { license }),
   getInfo:  () => api.get('/user/info'),
   update:   (data) => api.put('/user/update', data),
-  changePwd: (oldPwd, newPwd) => api.put('/user/password', { oldPwd, newPwd })
+  changePwd: (oldPwd, newPwd) => api.put('/user/password', { oldPwd, newPwd }),
+  adminUpdate: (userId, data) => api.put(`/user/admin-update/${userId}`, data),
+  recoverPassword: (data) => api.post('/user/recover-password', data)
 };
 
 // 活动
@@ -85,7 +89,8 @@ const registrationApi = {
   submit: (data) => api.post('/registration/submit', data),
   cancel: (id) => api.delete(`/registration/cancel/${id}`),
   list:   (activityId) => api.get(`/registration/list/${activityId}`),
-  review: (id, auditState) => api.put(`/registration/review/${id}`, { auditState })
+  review: (id, auditState) => api.put(`/registration/review/${id}`, { auditState }),
+  check:  (activityId) => api.get(`/registration/check/${activityId}`)
 };
 
 // 帖子

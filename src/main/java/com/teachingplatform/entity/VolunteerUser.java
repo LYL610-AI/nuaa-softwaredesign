@@ -4,7 +4,8 @@ public class VolunteerUser {
     private String userId;
     private String userPassword;
     private int userPermission;
-    private String userIdentity;
+    private String userName;
+    private String idNumber;
     private String userSex;
     private String userEdu;
     private String userPhone;
@@ -16,8 +17,10 @@ public class VolunteerUser {
     public void setUserPassword(String userPassword) { this.userPassword = userPassword; }
     public int getUserPermission() { return userPermission; }
     public void setUserPermission(int userPermission) { this.userPermission = userPermission; }
-    public String getUserIdentity() { return userIdentity; }
-    public void setUserIdentity(String userIdentity) { this.userIdentity = userIdentity; }
+    public String getUserName() { return userName; }
+    public void setUserName(String userName) { this.userName = userName; }
+    public String getIdNumber() { return idNumber; }
+    public void setIdNumber(String idNumber) { this.idNumber = idNumber; }
     public String getUserSex() { return userSex; }
     public void setUserSex(String userSex) { this.userSex = userSex; }
     public String getUserEdu() { return userEdu; }

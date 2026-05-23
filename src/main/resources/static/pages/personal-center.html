@@ -97,9 +97,9 @@
     <div class="card">
       <div class="table-wrapper">
         <table>
-          <thead><tr><th>活动标题</th><th>发布学校</th><th>发布时间</th><th>审核状态</th></tr></thead>
+          <thead><tr><th>活动标题</th><th>发布学校</th><th>发布时间</th><th>审核状态</th><th>操作</th></tr></thead>
           <tbody id="reviewedActivityBody">
-            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);">加载中……</td></tr>
+            <tr><td colspan="5" style="text-align:center;color:var(--text-muted);">加载中……</td></tr>
           </tbody>
         </table>
       </div>
@@ -111,9 +111,9 @@
     <div class="card">
       <div class="table-wrapper">
         <table>
-          <thead><tr><th>帖子标题</th><th>发布者</th><th>发布时间</th><th>审核状态</th></tr></thead>
+          <thead><tr><th>帖子标题</th><th>发布者</th><th>发布时间</th><th>审核状态</th><th>操作</th></tr></thead>
           <tbody id="reviewedPostBody">
-            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);">加载中……</td></tr>
+            <tr><td colspan="5" style="text-align:center;color:var(--text-muted);">加载中……</td></tr>
           </tbody>
         </table>
       </div>
@@ -125,9 +125,9 @@
     <div class="card">
       <div class="table-wrapper">
         <table>
-          <thead><tr><th>活动名称</th><th>总结标题</th><th>提交时间</th><th>审核状态</th></tr></thead>
+          <thead><tr><th>活动名称</th><th>总结标题</th><th>提交时间</th><th>审核状态</th><th>操作</th></tr></thead>
           <tbody id="reviewedSummaryBody">
-            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);">加载中……</td></tr>
+            <tr><td colspan="5" style="text-align:center;color:var(--text-muted);">加载中……</td></tr>
           </tbody>
         </table>
       </div>
@@ -136,7 +136,7 @@
 
   <!-- 账号安全 -->
   <div class="tab-content" id="tab-security" style="display:none;">
-    <div class="card" style="max-width:500px;">
+    <div class="card" style="max-width:500px;margin-bottom:24px;">
       <h3 style="margin-bottom:20px;">修改密码</h3>
       <form id="changePwdForm">
         <div class="form-group">
@@ -162,6 +162,35 @@
         </div>
         <button type="submit" class="btn btn-primary">修改密码</button>
       </form>
+    </div>
+
+    <!-- 找回密码（仅志愿者和学校用户） -->
+    <div class="card" style="max-width:500px;" id="recoverPwdCard">
+      <h3 style="margin-bottom:20px;">找回密码</h3>
+      <div id="volunteerRecover" style="display:none;">
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">输入注册时填写的身份证号来找回密码</p>
+        <div class="form-group">
+          <label for="recoverIdNumber">身份证号</label>
+          <input type="text" id="recoverIdNumber" class="form-input" placeholder="请输入18位身份证号" maxlength="18">
+        </div>
+        <div class="form-group">
+          <label for="recoverNewPwd">新密码</label>
+          <input type="password" id="recoverNewPwd" class="form-input" placeholder="6-20 位新密码" minlength="6">
+        </div>
+        <button class="btn btn-primary" onclick="submitRecoverPassword('volunteer')">重置密码</button>
+      </div>
+      <div id="schoolRecover" style="display:none;">
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">输入注册时填写的办学许可证号来找回密码</p>
+        <div class="form-group">
+          <label for="recoverLicense">办学许可证号</label>
+          <input type="text" id="recoverLicense" class="form-input" placeholder="请输入办学许可证号">
+        </div>
+        <div class="form-group">
+          <label for="recoverNewPwd2">新密码</label>
+          <input type="password" id="recoverNewPwd2" class="form-input" placeholder="6-20 位新密码" minlength="6">
+        </div>
+        <button class="btn btn-primary" onclick="submitRecoverPassword('school')">重置密码</button>
+      </div>
     </div>
   </div>
 </main>
@@ -218,7 +247,7 @@ async function loadProfile() {
 
 function renderProfile(user) {
   let displayName = user.userId;
-  if (user.userPermission === 1) displayName = user.userIdentity || user.userId;
+  if (user.userPermission === 1) displayName = user.userName || user.userId;
   else if (user.userPermission === 2) displayName = user.schoolName || user.userId;
   document.getElementById('profileName').textContent = displayName;
   document.getElementById('profileRole').textContent = '角色：' + (ROLE_NAME[user.userPermission] || '—');
@@ -236,6 +265,7 @@ async function loadMyRegistrations() {
   try {
     const result = await api.get('/registration/my');
     const list = Array.isArray(result) ? result : (result.list || []);
+    myRegistrationCache = list;
     if (!list.length) {
       tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">暂无报名记录</td></tr>';
       return;
@@ -246,9 +276,13 @@ async function loadMyRegistrations() {
         <td>${r.entryTime}</td>
         <td><span class="tag ${auditClassMap[r.auditState]}">${auditMap[r.auditState]}</span></td>
         <td>
-          ${r.auditState === '0'
-            ? `<button class="btn btn-danger btn-sm" onclick="cancelRegistration('${r.registrationId}')">取消报名</button>`
-            : '<span style="color:var(--text-muted);font-size:13px;">—</span>'}
+          <div class="action-group">
+            <button class="btn btn-outline btn-sm" onclick="window.location.href='activity-detail.html?id=${r.activityId}'">查看活动</button>
+            <button class="btn btn-outline btn-sm" onclick="viewRegistrationDetail('${r.registrationId}')">查看信息</button>
+            ${r.auditState === '0'
+              ? `<button class="btn btn-danger btn-sm" onclick="cancelRegistration('${r.registrationId}')">取消报名</button>`
+              : ''}
+          </div>
         </td>
       </tr>
     `).join('');
@@ -278,6 +312,7 @@ async function loadMyActivities() {
         <td>${(act.publishTime || '').split(' ')[0]}</td>
         <td>
           <div class="action-group">
+            <button class="btn btn-outline btn-sm" onclick="window.location.href='activity-detail.html?id=${act.activityId}'">查看活动</button>
             ${act.auditState === '1' && !act.summaryTitle ? `<button class="btn btn-primary btn-sm" onclick="showSummaryModal('${act.activityId}')">提交总结</button>` : ''}
             ${act.summaryTitle ? `<button class="btn btn-outline btn-sm" onclick="showSummaryModal('${act.activityId}')">查看总结</button>` : ''}
           </div>
@@ -305,7 +340,12 @@ async function loadMyPosts() {
         <td>${escHtml(p.activityTitle || '活动' + p.activityId)}</td>
         <td>${(p.publishTime || '').split(' ')[0]}</td>
         <td><span class="tag ${auditClassMap[p.auditState]}">${auditMap[p.auditState]}</span></td>
-        <td><button class="btn btn-danger btn-sm" onclick="deletePost('${p.postId}')">删除</button></td>
+        <td>
+          <div class="action-group">
+            <button class="btn btn-outline btn-sm" onclick="window.location.href='post-detail.html?id=${p.postId}'">查看</button>
+            <button class="btn btn-danger btn-sm" onclick="deletePost('${p.postId}')">删除</button>
+          </div>
+        </td>
       </tr>
     `).join('');
   } catch (err) {
@@ -322,7 +362,7 @@ function showEditProfile() {
     fieldsHtml = `
       <div class="form-group">
         <label>真实姓名</label>
-        <input type="text" id="editUserIdentity" class="form-input" value="${escHtml(user.userIdentity || '')}" placeholder="请输入真实姓名">
+        <input type="text" id="editUserName" class="form-input" value="${escHtml(user.userName || '')}" placeholder="请输入真实姓名">
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -391,7 +431,7 @@ function showEditProfile() {
   showModal('编辑个人资料', fieldsHtml, async () => {
     const data = { userPhone: document.getElementById('editUserPhone')?.value?.trim() || '' };
     if (perm === 1) {
-      data.userIdentity = document.getElementById('editUserIdentity')?.value?.trim() || '';
+      data.userName = document.getElementById('editUserName')?.value?.trim() || '';
       data.userSex = document.getElementById('editUserSex')?.value || '';
       data.userEdu = document.getElementById('editUserEdu')?.value || '';
     } else if (perm === 2) {
@@ -409,6 +449,22 @@ function showEditProfile() {
       showToast(err.message || '修改失败', 'error');
     }
   });
+}
+
+let myRegistrationCache = [];
+async function viewRegistrationDetail(id) {
+  const r = myRegistrationCache.find(x => x.registrationId === id);
+  if (!r) { showToast('未找到报名记录', 'error'); return; }
+  showModal('报名信息详情', `
+    <p><strong>活动名称：</strong>${escHtml(r.activityTitle || '活动' + r.activityId)}</p>
+    <p><strong>真实姓名：</strong>${escHtml(r.realName)}</p>
+    <p><strong>身份证号：</strong>${r.idNumber || '—'}</p>
+    <p><strong>手机号：</strong>${r.phoneNumber || '—'}</p>
+    <p><strong>性别：</strong>${r.gender || '—'} | <strong>学历：</strong>${r.degree || '—'}</p>
+    <p><strong>自我介绍：</strong>${escHtml(r.schoolWork || r.introduce || '—')}</p>
+    <p><strong>报名时间：</strong>${r.entryTime}</p>
+    <p><strong>审核状态：</strong>${auditMap[r.auditState]}</p>
+  `, null);
 }
 
 async function cancelRegistration(id) {
@@ -487,13 +543,41 @@ document.getElementById('changePwdForm').addEventListener('submit', async functi
   }
 });
 
+async function submitRecoverPassword(type) {
+  let data = { type };
+  if (type === 'volunteer') {
+    const idNumber = document.getElementById('recoverIdNumber').value.trim();
+    const np = document.getElementById('recoverNewPwd').value;
+    if (idNumber.length !== 18) { showToast('请输入正确的18位身份证号', 'warning'); return; }
+    if (np.length < 6) { showToast('密码至少6位', 'warning'); return; }
+    data.idNumber = idNumber;
+    data.newPassword = np;
+  } else {
+    const license = document.getElementById('recoverLicense').value.trim();
+    const np = document.getElementById('recoverNewPwd2').value;
+    if (!license) { showToast('请输入办学许可证号', 'warning'); return; }
+    if (np.length < 6) { showToast('密码至少6位', 'warning'); return; }
+    data.license = license;
+    data.newPassword = np;
+  }
+  try {
+    await userApi.recoverPassword(data);
+    showToast('密码重置成功，请使用新密码登录', 'success');
+  } catch (err) {
+    showToast(err.message || '找回密码失败', 'error');
+  }
+}
+
 // 加载已审核活动（管理员）
+let reviewedActivityCache = {};
 async function loadReviewedActivities() {
   const tbody = document.getElementById('reviewedActivityBody');
   try {
     const list = await api.get('/activity/reviewed', { pageSize: 50 });
+    reviewedActivityCache = {};
+    list.forEach(a => { reviewedActivityCache[a.activityId] = a; });
     if (!list.length) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">暂无已审核活动</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">暂无已审核活动</td></tr>';
       return;
     }
     tbody.innerHTML = list.map(a => `
@@ -502,19 +586,38 @@ async function loadReviewedActivities() {
         <td>${escHtml(a.schoolName || '')}</td>
         <td>${(a.publishTime || '').split(' ')[0]}</td>
         <td><span class="tag ${auditClassMap[a.auditState]}">${auditMap[a.auditState]}</span></td>
+        <td><button class="btn btn-outline btn-sm" onclick="viewReviewedActivity('${a.activityId}')">查看</button></td>
       </tr>
     `).join('');
   } catch (err) {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">加载失败</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">加载失败</td></tr>';
   }
 }
 
+function viewReviewedActivity(id) {
+  const a = reviewedActivityCache[id];
+  if (!a) return;
+  showModal('活动详情', `
+    <p><strong>标题：</strong>${escHtml(a.title)}</p>
+    <p><strong>学校：</strong>${escHtml(a.schoolName || '')}</p>
+    <p><strong>地址：</strong>${escHtml(a.schoolAddress || '')}</p>
+    <p><strong>招募人数：</strong>${a.recruitsNumber} | <strong>志愿时长：</strong>${a.volunteerDuration}h</p>
+    <p><strong>发布时间：</strong>${a.publishTime}</p>
+    <p><strong>审核状态：</strong>${auditMap[a.auditState]}</p>
+    <p><strong>活动内容：</strong></p>
+    <p style="white-space:pre-wrap;line-height:1.8;color:var(--text-secondary);">${escHtml(a.content)}</p>
+  `, null);
+}
+
+let reviewedPostCache = {};
 async function loadReviewedPosts() {
   const tbody = document.getElementById('reviewedPostBody');
   try {
     const list = await api.get('/post/reviewed', { pageSize: 50 });
+    reviewedPostCache = {};
+    list.forEach(p => { reviewedPostCache[p.postId] = p; });
     if (!list.length) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">暂无已审核帖子</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">暂无已审核帖子</td></tr>';
       return;
     }
     tbody.innerHTML = list.map(p => `
@@ -523,19 +626,37 @@ async function loadReviewedPosts() {
         <td>${escHtml(p.authorName || '用户' + p.userId)}</td>
         <td>${(p.publishTime || '').split(' ')[0]}</td>
         <td><span class="tag ${auditClassMap[p.auditState]}">${auditMap[p.auditState]}</span></td>
+        <td><button class="btn btn-outline btn-sm" onclick="viewReviewedPost('${p.postId}')">查看</button></td>
       </tr>
     `).join('');
   } catch (err) {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">加载失败</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">加载失败</td></tr>';
   }
 }
 
+function viewReviewedPost(id) {
+  const p = reviewedPostCache[id];
+  if (!p) return;
+  showModal('帖子详情', `
+    <p><strong>标题：</strong>${escHtml(p.title)}</p>
+    <p><strong>发布者：</strong>${escHtml(p.authorName || '用户' + p.userId)}</p>
+    <p><strong>关联活动：</strong>${escHtml(p.activityTitle || '活动' + p.activityId)}</p>
+    <p><strong>发布时间：</strong>${p.publishTime}</p>
+    <p><strong>审核状态：</strong>${auditMap[p.auditState]}</p>
+    <p><strong>内容：</strong></p>
+    <p style="white-space:pre-wrap;line-height:1.8;color:var(--text-secondary);">${escHtml(p.content)}</p>
+  `, null);
+}
+
+let reviewedSummaryCache = {};
 async function loadReviewedSummaries() {
   const tbody = document.getElementById('reviewedSummaryBody');
   try {
     const list = await api.get('/activity/summary/reviewed', { pageSize: 50 });
+    reviewedSummaryCache = {};
+    list.forEach(s => { reviewedSummaryCache[s.activityId] = s; });
     if (!list.length) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">暂无已审核总结</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">暂无已审核总结</td></tr>';
       return;
     }
     tbody.innerHTML = list.map(s => `
@@ -544,11 +665,26 @@ async function loadReviewedSummaries() {
         <td>${escHtml(s.summaryTitle || '')}</td>
         <td>${(s.summarySubmitTime || '').split(' ')[0]}</td>
         <td><span class="tag ${auditClassMap[s.summaryAuditState]}">${auditMap[s.summaryAuditState]}</span></td>
+        <td><button class="btn btn-outline btn-sm" onclick="viewReviewedSummary('${s.activityId}')">查看</button></td>
       </tr>
     `).join('');
   } catch (err) {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">加载失败</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">加载失败</td></tr>';
   }
+}
+
+function viewReviewedSummary(id) {
+  const s = reviewedSummaryCache[id];
+  if (!s) return;
+  showModal('总结详情', `
+    <p><strong>活动：</strong>${escHtml(s.title || '')}</p>
+    <p><strong>学校：</strong>${escHtml(s.schoolName || '')}</p>
+    <p><strong>总结标题：</strong>${escHtml(s.summaryTitle || '')}</p>
+    <p><strong>提交时间：</strong>${s.summarySubmitTime || '—'}</p>
+    <p><strong>审核状态：</strong>${auditMap[s.summaryAuditState]}</p>
+    <p><strong>总结内容：</strong></p>
+    <p style="white-space:pre-wrap;line-height:1.8;color:var(--text-secondary);">${escHtml(s.summaryContent || '')}</p>
+  `, null);
 }
 
 function escHtml(str) {
@@ -578,6 +714,13 @@ function escHtml(str) {
       tab.classList.add('active');
       document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
       document.getElementById('tab-' + tab.dataset.tab).style.display = 'block';
+      if (tab.dataset.tab === 'security') {
+        const user = getCurrentUser();
+        const perm = user ? user.userPermission : null;
+        document.getElementById('volunteerRecover').style.display = perm === 1 ? 'block' : 'none';
+        document.getElementById('schoolRecover').style.display = perm === 2 ? 'block' : 'none';
+        document.getElementById('recoverPwdCard').style.display = perm === 3 ? 'none' : 'block';
+      }
     });
   });
 

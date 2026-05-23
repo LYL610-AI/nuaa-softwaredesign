@@ -22,6 +22,16 @@ public class UserController {
         return Result.ok(userService.phoneExists(phone));
     }
 
+    @GetMapping("/checkIdNumber")
+    public Result checkIdNumber(@RequestParam String idNumber) {
+        return Result.ok(userService.idNumberExists(idNumber));
+    }
+
+    @GetMapping("/checkLicense")
+    public Result checkLicense(@RequestParam String license) {
+        return Result.ok(userService.licenseExists(license));
+    }
+
     @PostMapping("/login")
     public Result login(@RequestBody Map<String, String> body) {
         String phone = body.get("phone");
@@ -38,7 +48,7 @@ public class UserController {
     public Result register(@RequestBody Map<String, String> body) {
         boolean ok = userService.register(body);
         if (!ok) {
-            return Result.error(400, "注册失败，手机号已注册");
+            return Result.error(400, "注册失败，手机号或身份证号/许可证号已注册");
         }
         return Result.ok();
     }
@@ -84,6 +94,56 @@ public class UserController {
             return Result.error(403, "无权操作");
         }
         return Result.ok(userService.listUsers(permission, keyword, page, pageSize));
+    }
+
+    @PutMapping("/reset-password/{userId}")
+    public Result resetPassword(@PathVariable String userId,
+                                @RequestBody Map<String, String> body,
+                                HttpServletRequest req) {
+        int adminPermission = (int) req.getAttribute("permission");
+        if (adminPermission != 3) {
+            return Result.error(403, "无权操作");
+        }
+        int permission = Integer.parseInt(body.get("permission"));
+        String newPassword = body.get("newPassword");
+        if (newPassword == null || newPassword.length() < 6) {
+            return Result.error(400, "密码至少6位");
+        }
+        boolean ok = userService.adminResetPassword(userId, permission, newPassword);
+        return ok ? Result.ok() : Result.error(500, "重置失败");
+    }
+
+    @PutMapping("/admin-update/{userId}")
+    public Result adminUpdateUser(@PathVariable String userId,
+                                  @RequestBody Map<String, Object> body,
+                                  HttpServletRequest req) {
+        int adminPermission = (int) req.getAttribute("permission");
+        if (adminPermission != 3) {
+            return Result.error(403, "无权操作");
+        }
+        int permission = Integer.parseInt(body.get("permission").toString());
+        body.put("userId", userId);
+        boolean ok = userService.adminUpdateUser(permission, body);
+        return ok ? Result.ok() : Result.error(500, "修改失败");
+    }
+
+    @PostMapping("/recover-password")
+    public Result recoverPassword(@RequestBody Map<String, String> body) {
+        String type = body.get("type"); // "school" or "volunteer"
+        String newPassword = body.get("newPassword");
+        if (newPassword == null || newPassword.length() < 6) {
+            return Result.error(400, "密码至少6位");
+        }
+        if ("school".equals(type)) {
+            String license = body.get("license");
+            boolean ok = userService.recoverPasswordByLicense(license, newPassword);
+            return ok ? Result.ok() : Result.error(400, "办学许可证号不存在");
+        } else if ("volunteer".equals(type)) {
+            String idNumber = body.get("idNumber");
+            boolean ok = userService.recoverPasswordByIdNumber(idNumber, newPassword);
+            return ok ? Result.ok() : Result.error(400, "身份证号不存在");
+        }
+        return Result.error(400, "参数错误");
     }
 
     @DeleteMapping("/delete/{userId}")

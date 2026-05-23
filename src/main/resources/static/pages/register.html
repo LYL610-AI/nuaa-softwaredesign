@@ -37,8 +37,13 @@
     <!-- 志愿者特有字段 -->
     <div class="form-section active" id="volunteerFields">
       <div class="form-group">
-        <label for="userIdentity">真实姓名</label>
-        <input type="text" id="userIdentity" class="form-input" placeholder="请输入真实姓名">
+        <label for="userName">真实姓名</label>
+        <input type="text" id="userName" class="form-input" placeholder="请输入真实姓名">
+      </div>
+      <div class="form-group">
+        <label for="idNumber">身份证号</label>
+        <input type="text" id="idNumber" class="form-input" placeholder="请输入18位身份证号" maxlength="18" onblur="checkIdNumberAvailable()">
+        <span id="idNumberTip" style="display:none;font-size:12px;margin-top:4px;"></span>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -75,7 +80,8 @@
       </div>
       <div class="form-group">
         <label for="license">办学许可证号</label>
-        <input type="text" id="license" class="form-input" placeholder="请输入办学许可证号">
+        <input type="text" id="license" class="form-input" placeholder="请输入办学许可证号" onblur="checkLicenseAvailable()">
+        <span id="licenseTip" style="display:none;font-size:12px;margin-top:4px;"></span>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -151,6 +157,9 @@ document.querySelectorAll('#roleTabs .role-tab').forEach(tab => {
 document.querySelectorAll('#volunteerFields input, #volunteerFields select').forEach(f => f.setAttribute('required', ''));
 
 let phoneChecked = false;
+let idNumberChecked = false;
+let licenseChecked = false;
+
 async function checkPhoneAvailable() {
   const phone = document.getElementById('userPhone').value.trim();
   const tip = document.getElementById('phoneTip');
@@ -170,6 +179,50 @@ async function checkPhoneAvailable() {
     }
   } catch (err) {
     phoneChecked = true;
+  }
+}
+
+async function checkIdNumberAvailable() {
+  const idNumber = document.getElementById('idNumber').value.trim();
+  const tip = document.getElementById('idNumberTip');
+  if (idNumber.length !== 18) { tip.style.display = 'none'; idNumberChecked = false; return; }
+  try {
+    const exists = await userApi.checkIdNumber(idNumber);
+    if (exists) {
+      tip.textContent = '该身份证号已注册';
+      tip.style.color = 'var(--danger)';
+      tip.style.display = 'block';
+      idNumberChecked = false;
+    } else {
+      tip.textContent = '身份证号可用';
+      tip.style.color = 'var(--success)';
+      tip.style.display = 'block';
+      idNumberChecked = true;
+    }
+  } catch (err) {
+    idNumberChecked = true;
+  }
+}
+
+async function checkLicenseAvailable() {
+  const license = document.getElementById('license').value.trim();
+  const tip = document.getElementById('licenseTip');
+  if (!license) { tip.style.display = 'none'; licenseChecked = false; return; }
+  try {
+    const exists = await userApi.checkLicense(license);
+    if (exists) {
+      tip.textContent = '该办学许可证号已注册';
+      tip.style.color = 'var(--danger)';
+      tip.style.display = 'block';
+      licenseChecked = false;
+    } else {
+      tip.textContent = '办学许可证号可用';
+      tip.style.color = 'var(--success)';
+      tip.style.display = 'block';
+      licenseChecked = true;
+    }
+  } catch (err) {
+    licenseChecked = true;
   }
 }
 
@@ -201,16 +254,27 @@ document.getElementById('registerForm').addEventListener('submit', async functio
 
   let extraData = {};
   if (selectedRole === 'volunteer') {
+    const idNumber = document.getElementById('idNumber').value.trim();
+    if (idNumber.length !== 18) {
+      showToast('请输入正确的18位身份证号', 'warning');
+      return;
+    }
     extraData = {
-      userIdentity: document.getElementById('userIdentity').value.trim(),
+      userName: document.getElementById('userName').value.trim(),
+      idNumber: idNumber,
       userSex: document.getElementById('userSex').value,
       userEdu: document.getElementById('userEdu').value
     };
   } else {
+    const license = document.getElementById('license').value.trim();
+    if (!license) {
+      showToast('请输入办学许可证号', 'warning');
+      return;
+    }
     extraData = {
       type: document.getElementById('schoolType').value,
       address: document.getElementById('schoolAddress').value.trim(),
-      license: document.getElementById('license').value.trim(),
+      license: license,
       principle: document.getElementById('principle').value.trim(),
       schoolName: document.getElementById('schoolName').value.trim()
     };

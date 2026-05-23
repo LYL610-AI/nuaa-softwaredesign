@@ -23,7 +23,7 @@ public class CommentDao {
     }
 
     public List<Comment> listByPost(String postId) {
-        String sql = "SELECT c.*, COALESCE(v.user_identity, s.principle, a.user_id) as author_name FROM comment c " +
+        String sql = "SELECT c.*, COALESCE(v.user_name, s.principle, a.user_id) as author_name FROM comment c " +
                      "LEFT JOIN volunteer_user v ON c.user_id = v.user_id " +
                      "LEFT JOIN school_user s ON c.user_id = s.user_id " +
                      "LEFT JOIN administrator a ON c.user_id = a.user_id " +
