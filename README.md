@@ -95,7 +95,7 @@ web设计/
 │       │   └── main.js                        # 公共工具函数
 │       └── pages/                             # 页面（8个）
 └── target/
-    └── teaching-platform-1.0.0.jar            # 可执行 JAR 包
+    └── 2.0.jar                                  # 可执行 JAR 包
 ```
 
 ---
@@ -138,8 +138,8 @@ web设计/
 - 学校用户可见报名列表表格，审核按钮（通过/退回）
 
 #### 发布活动页（publish-activity.html）
-- 表单：标题、内容(文本域)、招募人数、志愿时长、活动地址
-- 确认信息勾选框 + 提交审核按钮 + 保存草稿按钮
+- 表单：标题、内容、招募人数、活动地址、封面图片上传
+- 确认信息勾选框 + 提交审核按钮
 - 下方表格：我发布的活动列表，可编辑/提交总结
 
 #### 个人中心页（personal-center.html）
@@ -158,7 +158,7 @@ web设计/
 #### 讨论区页（discussion.html）
 - 双栏布局：左侧帖子列表（标题、摘要、元信息），右侧活动筛选 + 帖子详情
 - 点击帖子标题展开详情，显示评论列表 + 发表评论输入框
-- 发布主题帖弹窗：选择关联活动 + 标题 + 内容
+- 发布主题帖弹窗：选择关联活动 + 标题 + 内容 + 图片上传
 
 ### 导航栏自适应
 
@@ -179,7 +179,7 @@ web设计/
 |------|------|----------|
 | `user` | 用户基础表 | user_id(PK), user_password, user_permission, user_phone, register_time |
 | `school_user` | 学校用户表 | user_id(PK), user_password, type, address, license, principle, user_phone, register_time |
-| `volunteer_user` | 志愿者用户表 | user_id(PK), user_password, user_identity, user_sex, user_edu, user_phone, register_time |
+| `volunteer_user` | 志愿者用户表 | user_id(PK), user_password, user_name, id_number, user_sex, user_edu, user_phone, register_time |
 | `administrator` | 管理员表 | user_id(PK), user_password, user_permission, user_phone, register_time |
 | `activity` | 支教活动表 | activity_id(PK), user_id(FK), title, content, recruits_number, school_address, start_date, end_date, activity_state, audit_state, picture_url, publish_time |
 | `registration` | 报名表 | registration_id(PK), user_id(FK), activity_id(FK), phone_number, real_name, id_number, gender, degree, introduce, audit_state, entry_time |

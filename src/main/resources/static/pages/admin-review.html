@@ -209,22 +209,9 @@ function reviewItem(type, id, state) {
   const typeNames = { activity: '活动', post: '帖子', summary: '总结' };
   const stateText = state === '1' ? '通过' : '退回';
 
-  let contentHtml = `<p>确认<strong>${stateText}</strong>该${typeNames[type]}申请？</p>`;
-  let reasonInput = '';
-  if (state === '2') {
-    reasonInput = 'reasonText';
-    contentHtml += `
-      <div class="form-group" style="margin-top:12px;">
-        <label>退回原因</label>
-        <textarea class="form-input" id="${reasonInput}" rows="3" placeholder="请输入退回原因（选填）"></textarea>
-      </div>
-    `;
-  }
-
-  showModal(`${state === '1' ? '✓' : '✗'} 审核${typeNames[type]}`, contentHtml, async () => {
+  showModal(`${state === '1' ? '✓' : '✗'} 审核${typeNames[type]}`, `<p>确认<strong>${stateText}</strong>该${typeNames[type]}申请？</p>`, async () => {
     try {
-      const reason = state === '2' ? (document.getElementById('reasonText')?.value || '') : '';
-      if (type === 'activity') await activityApi.review(id, state, reason);
+      if (type === 'activity') await activityApi.review(id, state);
       else if (type === 'post') await postApi.review(id, state);
       else if (type === 'summary') await activityApi.reviewSummary(id, state);
       showToast(`${typeNames[type]}已${stateText}`, 'success');

@@ -96,12 +96,12 @@
 
 <!-- 编辑活动弹窗 -->
 <div class="modal-overlay" id="editActivityModal">
-  <div class="modal">
+  <div class="modal" style="max-width:720px;">
     <div class="modal-header">
       <h3 class="modal-title">编辑活动信息</h3>
       <button class="modal-close" onclick="document.getElementById('editActivityModal').classList.remove('show')">&times;</button>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" style="max-height:65vh;overflow-y:auto;padding-right:4px;">
       <form id="editActivityForm">
         <div class="form-group">
           <label>活动标题</label>
@@ -164,7 +164,10 @@
       <h3 class="modal-title">提交活动总结</h3>
       <button class="modal-close" onclick="document.getElementById('summaryModal').classList.remove('show')">&times;</button>
     </div>
-    <div class="modal-body">
+<div class="modal-body">
+      <div id="summaryRejectTip" style="display:none;background:#fff2f0;border:1px solid #ffccc7;border-radius:8px;padding:12px 16px;margin-bottom:16px;color:#cf1322;font-size:14px;">
+        &#9888; 上次提交的活动总结未通过管理员审核，请修改后重新提交。
+      </div>
       <form id="summaryForm">
         <div class="form-group">
           <label>总结标题</label>
@@ -372,12 +375,23 @@ function showSummaryModal(activityId) {
   if (act && act.summaryTitle) {
     document.getElementById('summaryTitle').value = act.summaryTitle || '';
     document.getElementById('summaryContent').value = act.summaryContent || '';
-    modal.querySelector('.modal-title').textContent = '查看/修改总结';
-    modal.querySelector('.modal-footer .btn-primary').textContent = '更新总结';
+    if (act.summaryAuditState === '2') {
+      modal.querySelector('.modal-title').textContent = '重新提交活动总结';
+      modal.querySelector('.modal-title').style.color = 'var(--danger)';
+      modal.querySelector('.modal-footer .btn-primary').textContent = '重新提交审核';
+      document.getElementById('summaryRejectTip').style.display = 'block';
+    } else {
+      modal.querySelector('.modal-title').textContent = '查看/修改总结';
+      modal.querySelector('.modal-title').style.color = '';
+      modal.querySelector('.modal-footer .btn-primary').textContent = '更新总结';
+      document.getElementById('summaryRejectTip').style.display = 'none';
+    }
   } else {
     document.getElementById('summaryForm').reset();
     modal.querySelector('.modal-title').textContent = '提交活动总结';
+    modal.querySelector('.modal-title').style.color = '';
     modal.querySelector('.modal-footer .btn-primary').textContent = '提交审核';
+    document.getElementById('summaryRejectTip').style.display = 'none';
   }
   modal.classList.add('show');
 }
@@ -427,7 +441,8 @@ async function loadMyActivities() {
           <div class="action-group">
             ${act.auditState === '0' ? `<button class="btn btn-outline btn-sm" onclick="showEditModal('${act.activityId}')">编辑</button>` : ''}
             ${act.auditState === '1' && !act.summaryTitle ? `<button class="btn btn-primary btn-sm" onclick="showSummaryModal('${act.activityId}')">提交总结</button>` : ''}
-            ${act.summaryTitle ? `<button class="btn btn-outline btn-sm" onclick="showSummaryModal('${act.activityId}')">查看总结</button>` : ''}
+            ${act.summaryTitle && act.summaryAuditState === '2' ? `<button class="btn btn-warning btn-sm" onclick="showSummaryModal('${act.activityId}')">重新提交总结</button>` : ''}
+            ${act.summaryTitle && act.summaryAuditState !== '2' ? `<button class="btn btn-outline btn-sm" onclick="showSummaryModal('${act.activityId}')">查看总结</button>` : ''}
             <button class="btn btn-danger btn-sm" onclick="deleteActivity('${act.activityId}')">删除</button>
           </div>
         </td>
