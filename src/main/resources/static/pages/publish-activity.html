@@ -27,7 +27,7 @@
 
       <div class="form-group">
         <label for="content">活动内容 <span style="color:var(--danger);">*</span></label>
-        <textarea id="content" class="form-input" rows="6" placeholder="请详细描述支教活动内容、教学目标、课程安排等" required></textarea>
+        <textarea id="content" class="form-input" rows="10" placeholder="请详细描述支教活动内容、教学目标、课程安排等" required style="max-height:400px;overflow-y:auto;resize:vertical;"></textarea>
       </div>
 
       <div class="form-row">
@@ -36,14 +36,30 @@
           <input type="number" id="recruitsNumber" class="form-input" placeholder="请输入招募人数" required min="1" value="5">
         </div>
         <div class="form-group">
-          <label for="volunteerDuration">志愿时长（小时）</label>
-          <input type="number" id="volunteerDuration" class="form-input" placeholder="预计志愿时长" min="1" value="40">
+          <label for="startDate">开始日期</label>
+          <input type="date" id="startDate" class="form-input">
+        </div>
+        <div class="form-group">
+          <label for="endDate">结束日期</label>
+          <input type="date" id="endDate" class="form-input">
         </div>
       </div>
 
       <div class="form-group">
         <label for="address">活动地址 <span style="color:var(--danger);">*</span></label>
         <input type="text" id="address" class="form-input" placeholder="省/市/县/镇/乡" required>
+      </div>
+
+      <div class="form-group">
+        <label>封面图片</label>
+        <div class="image-upload-area" id="coverUploadArea">
+          <input type="file" id="coverFile" accept="image/*" style="display:none" onchange="handleCoverSelect(event)">
+          <div class="image-upload-box" id="coverUploadBox" onclick="document.getElementById('coverFile').click()">
+            <span id="coverPlaceholder">+ 点击上传封面图片</span>
+            <img id="coverPreview" src="" alt="" style="display:none;max-width:100%;max-height:200px;border-radius:8px;">
+          </div>
+          <button type="button" class="btn btn-outline btn-sm" id="coverRemoveBtn" style="display:none;margin-top:8px;" onclick="removeCover()">移除图片</button>
+        </div>
       </div>
 
       <div class="form-group" style="margin-top:28px;">
@@ -93,7 +109,7 @@
         </div>
         <div class="form-group">
           <label>活动内容</label>
-          <textarea id="editContent" class="form-input" rows="5" required></textarea>
+          <textarea id="editContent" class="form-input" rows="8" required style="max-height:300px;overflow-y:auto;resize:vertical;"></textarea>
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -101,13 +117,28 @@
             <input type="number" id="editRecruits" class="form-input" required min="1">
           </div>
           <div class="form-group">
-            <label>志愿时长（小时）</label>
-            <input type="number" id="editDuration" class="form-input" min="1">
+            <label>开始日期</label>
+            <input type="date" id="editStartDate" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>结束日期</label>
+            <input type="date" id="editEndDate" class="form-input">
           </div>
         </div>
         <div class="form-group">
           <label>活动地址</label>
           <input type="text" id="editAddress" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>封面图片</label>
+          <div class="image-upload-area" id="editPictureUploadArea">
+            <input type="file" id="editPictureFile" accept="image/*" style="display:none" onchange="handleEditCoverSelect(event)">
+            <div class="image-upload-box" id="editPictureUploadBox" onclick="document.getElementById('editPictureFile').click()">
+              <span id="editPicturePlaceholder">+ 点击上传封面图片</span>
+              <img id="editPicturePreview" src="" alt="" style="display:none;max-width:100%;max-height:200px;border-radius:8px;">
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" id="editPictureRemoveBtn" style="display:none;margin-top:8px;" onclick="removeEditCover()">移除图片</button>
+          </div>
         </div>
         <div class="form-group">
           <label>活动状态</label>
@@ -168,6 +199,61 @@ document.getElementById('confirmInfo').addEventListener('change', function() {
   document.getElementById('submitBtn').disabled = !this.checked;
 });
 
+// ===== 图片上传 =====
+let pictureUrl = '';
+let editPictureUrl = '';
+let editPictureFileChanged = false;
+
+async function handleCoverSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    pictureUrl = await fileApi.upload(file);
+    document.getElementById('coverPreview').src = pictureUrl;
+    document.getElementById('coverPreview').style.display = 'block';
+    document.getElementById('coverPlaceholder').style.display = 'none';
+    document.getElementById('coverRemoveBtn').style.display = 'inline-block';
+  } catch (err) {
+    showToast(err.message || '上传失败', 'error');
+    e.target.value = '';
+  }
+}
+
+function removeCover() {
+  pictureUrl = '';
+  document.getElementById('coverPreview').src = '';
+  document.getElementById('coverPreview').style.display = 'none';
+  document.getElementById('coverPlaceholder').style.display = 'block';
+  document.getElementById('coverRemoveBtn').style.display = 'none';
+  document.getElementById('coverFile').value = '';
+}
+
+async function handleEditCoverSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    editPictureUrl = await fileApi.upload(file);
+    editPictureFileChanged = true;
+    document.getElementById('editPicturePreview').src = editPictureUrl;
+    document.getElementById('editPicturePreview').style.display = 'block';
+    document.getElementById('editPicturePlaceholder').style.display = 'none';
+    document.getElementById('editPictureRemoveBtn').style.display = 'inline-block';
+  } catch (err) {
+    showToast(err.message || '上传失败', 'error');
+    e.target.value = '';
+  }
+}
+
+function removeEditCover() {
+  editPictureUrl = '';
+  editPictureFileChanged = true;
+  document.getElementById('editPicturePreview').src = '';
+  document.getElementById('editPicturePreview').style.display = 'none';
+  document.getElementById('editPicturePlaceholder').style.display = 'block';
+  document.getElementById('editPictureRemoveBtn').style.display = 'none';
+  document.getElementById('editPictureFile').value = '';
+}
+
 document.getElementById('publishForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   const title = document.getElementById('title').value.trim();
@@ -183,13 +269,16 @@ document.getElementById('publishForm').addEventListener('submit', async function
       title,
       content,
       recruitsNumber: parseInt(document.getElementById('recruitsNumber').value),
-      volunteerDuration: parseInt(document.getElementById('volunteerDuration').value),
-      address: document.getElementById('address').value.trim()
+      startDate: document.getElementById('startDate').value,
+      endDate: document.getElementById('endDate').value,
+      address: document.getElementById('address').value.trim(),
+      pictureUrl: pictureUrl
     });
     showToast('活动已提交，等待管理员审核', 'success');
     document.getElementById('publishForm').reset();
     document.getElementById('submitBtn').disabled = true;
     document.getElementById('confirmInfo').checked = false;
+    removeCover();
     loadMyActivities();
   } catch (err) {
     showToast(err.message || '发布失败', 'error');
@@ -202,12 +291,26 @@ function showEditModal(actId) {
   const act = myActivityCache[actId];
   if (!act) return;
   editActivityId = actId;
+  editPictureFileChanged = false;
   document.getElementById('editTitle').value = act.title || '';
   document.getElementById('editContent').value = act.content || '';
   document.getElementById('editRecruits').value = act.recruitsNumber || 1;
-  document.getElementById('editDuration').value = act.volunteerDuration || 0;
+  document.getElementById('editStartDate').value = act.startDate || '';
+  document.getElementById('editEndDate').value = act.endDate || '';
   document.getElementById('editAddress').value = act.schoolAddress || '';
   document.getElementById('editState').value = act.activityState || '0';
+  editPictureUrl = act.pictureUrl || '';
+  if (editPictureUrl) {
+    document.getElementById('editPicturePreview').src = editPictureUrl;
+    document.getElementById('editPicturePreview').style.display = 'block';
+    document.getElementById('editPicturePlaceholder').style.display = 'none';
+    document.getElementById('editPictureRemoveBtn').style.display = 'inline-block';
+  } else {
+    document.getElementById('editPicturePreview').src = '';
+    document.getElementById('editPicturePreview').style.display = 'none';
+    document.getElementById('editPicturePlaceholder').style.display = 'block';
+    document.getElementById('editPictureRemoveBtn').style.display = 'none';
+  }
   document.getElementById('editActivityModal').classList.add('show');
 }
 
@@ -220,9 +323,11 @@ async function submitEditActivity() {
       title,
       content,
       recruitsNumber: parseInt(document.getElementById('editRecruits').value),
-      volunteerDuration: parseInt(document.getElementById('editDuration').value),
+      startDate: document.getElementById('editStartDate').value,
+      endDate: document.getElementById('editEndDate').value,
       address: document.getElementById('editAddress').value.trim(),
-      activityState: document.getElementById('editState').value
+      activityState: document.getElementById('editState').value,
+      pictureUrl: editPictureFileChanged ? editPictureUrl : (myActivityCache[editActivityId] && myActivityCache[editActivityId].pictureUrl) || editPictureUrl
     });
     document.getElementById('editActivityModal').classList.remove('show');
     showToast('活动已更新', 'success');

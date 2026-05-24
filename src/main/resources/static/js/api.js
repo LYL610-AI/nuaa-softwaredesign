@@ -90,7 +90,8 @@ const registrationApi = {
   cancel: (id) => api.delete(`/registration/cancel/${id}`),
   list:   (activityId) => api.get(`/registration/list/${activityId}`),
   review: (id, auditState) => api.put(`/registration/review/${id}`, { auditState }),
-  check:  (activityId) => api.get(`/registration/check/${activityId}`)
+  check:  (activityId) => api.get(`/registration/check/${activityId}`),
+  count:  (activityId) => api.get(`/registration/count/${activityId}`)
 };
 
 // 帖子
@@ -107,4 +108,23 @@ const commentApi = {
   list:   (postId) => api.get(`/comment/list/${postId}`),
   create: (data) => api.post('/comment/create', data),
   delete: (id) => api.delete(`/comment/delete/${id}`)
+};
+
+// 文件上传
+const fileApi = {
+  upload: async (file) => {
+    const token = localStorage.getItem('token');
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch(`${API_BASE}/file/upload`, {
+      method: 'POST',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      body: formData
+    });
+    const result = await response.json();
+    if (result.code !== 200) {
+      throw new Error(result.message || '上传失败');
+    }
+    return result.data.url;
+  }
 };

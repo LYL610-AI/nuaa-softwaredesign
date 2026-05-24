@@ -31,43 +31,28 @@
     <div class="modal-body">
       <form id="registerForm">
         <div class="form-group">
-          <label>真实姓名 <span style="color:var(--danger);">*</span></label>
-          <input type="text" class="form-input" id="regRealName" placeholder="请输入真实姓名" required>
-        </div>
-        <div class="form-group">
-          <label>手机号 <span style="color:var(--danger);">*</span></label>
-          <input type="tel" class="form-input" id="regPhone" placeholder="请输入手机号" required pattern="1[3-9]\d{9}">
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>性别</label>
-            <select class="form-input" id="regGender">
-              <option value="">请选择</option>
-              <option value="男">男</option>
-              <option value="女">女</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>学历</label>
-            <select class="form-input" id="regDegree">
-              <option value="">请选择</option>
-              <option value="高中">高中</option>
-              <option value="专科">专科</option>
-              <option value="本科">本科</option>
-              <option value="硕士">硕士</option>
-              <option value="博士">博士</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
           <label>自我介绍</label>
           <textarea class="form-input" id="regSchoolWork" rows="4" placeholder="请简要介绍自己，如教育背景、教学经验、特长等"></textarea>
         </div>
+        <p style="font-size:13px;color:var(--text-muted);">姓名、手机号等信息将自动从您的个人资料中获取</p>
       </form>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal()">取消</button>
       <button class="btn btn-primary" onclick="submitRegistration()">提交报名</button>
+    </div>
+  </div>
+</div>
+
+<!-- 自我介绍查看弹窗 -->
+<div class="modal-overlay" id="introModal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header">
+      <h3 class="modal-title" id="introModalTitle">自我介绍</h3>
+      <button class="modal-close" onclick="document.getElementById('introModal').classList.remove('show')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p id="introModalContent" style="max-height:450px;overflow-y:auto;overflow-x:hidden;word-break:break-all;white-space:pre-wrap;line-height:1.8;color:var(--text-secondary);"></p>
     </div>
   </div>
 </div>
@@ -109,6 +94,7 @@ async function loadDetail() {
 }
 
 function renderDetail(act) {
+  window._currentRecruits = act.recruitsNumber;
   const container = document.getElementById('detailContent');
   const user = getCurrentUser();
   const permission = user ? user.userPermission : null;
@@ -117,6 +103,7 @@ function renderDetail(act) {
     <div class="card">
       <div class="card-header">
         <h2 class="card-title">${escHtml(act.title)}</h2>
+        ${act.pictureUrl ? `<img src="${act.pictureUrl}" alt="活动封面" style="width:100%;max-height:360px;object-fit:cover;border-radius:8px;margin-top:12px;">` : ''}
         <div class="activity-tags">
           <span class="tag ${stateClassMap[act.activityState]}">${stateMap[act.activityState]}</span>
           <span class="tag ${auditClassMap[act.auditState]}">${auditMap[act.auditState]}</span>
@@ -124,15 +111,17 @@ function renderDetail(act) {
       </div>
       <div class="detail-info">
         <div class="info-row"><span class="label">发布学校</span><span class="value">${escHtml(act.schoolName)}</span></div>
+        <div class="info-row"><span class="label">负责人</span><span class="value">${escHtml(act.principle || '—')}</span></div>
+        <div class="info-row"><span class="label">联系电话</span><span class="value">${act.schoolPhone || '—'}</span></div>
         <div class="info-row"><span class="label">活动地址</span><span class="value">${escHtml(act.address)}</span></div>
         <div class="info-row"><span class="label">招募人数</span><span class="value">${act.recruitsNumber} 人</span></div>
-        <div class="info-row"><span class="label">志愿时长</span><span class="value">${act.volunteerDuration} 小时</span></div>
+        <div class="info-row"><span class="label">活动日期</span><span class="value">${act.startDate || '—'} 至 ${act.endDate || '—'}</span></div>
         <div class="info-row"><span class="label">发布时间</span><span class="value">${act.publishTime}</span></div>
         <div class="info-row"><span class="label">审核时间</span><span class="value">${act.auditTime || '—'}</span></div>
       </div>
       <div style="margin-top:20px;">
         <h4 style="margin-bottom:10px;">活动内容</h4>
-        <p style="line-height:1.8;color:var(--text-secondary);white-space:pre-wrap;">${escHtml(act.content)}</p>
+        <p style="max-height:400px;overflow-y:auto;overflow-x:hidden;word-break:break-all;line-height:1.8;color:var(--text-secondary);white-space:pre-wrap;">${escHtml(act.content)}</p>
       </div>
       ${act.summaryAuditState === '1' ? `
         <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border);">
@@ -162,6 +151,14 @@ async function checkRegistrationStatus() {
       btn.className = 'btn btn-outline btn-lg';
       btn.disabled = true;
       btn.onclick = null;
+      return;
+    }
+    const count = await registrationApi.count(currentActivityId);
+    if (count >= window._currentRecruits) {
+      btn.textContent = '报名人数已满';
+      btn.className = 'btn btn-outline btn-lg';
+      btn.disabled = true;
+      btn.onclick = null;
     }
   } catch (err) { /* silent */ }
 }
@@ -169,6 +166,7 @@ async function checkRegistrationStatus() {
 async function loadRegistrations(activityId) {
   try {
     const list = await registrationApi.list(activityId);
+    window._regList = list;
     const section = document.getElementById('registrationSection');
     if (!section) return;
 
@@ -180,7 +178,7 @@ async function loadRegistrations(activityId) {
         <div class="table-wrapper">
           <table>
             <thead>
-              <tr><th>姓名</th><th>性别</th><th>学历</th><th>自我介绍</th><th>报名时间</th><th>审核状态</th><th>操作</th></tr>
+              <tr><th>姓名</th><th>性别</th><th>学历</th><th>身份证号</th><th>手机号</th><th>自我介绍</th><th>报名时间</th><th>审核状态</th><th>操作</th></tr>
             </thead>
             <tbody>
               ${list.map(r => `
@@ -188,7 +186,12 @@ async function loadRegistrations(activityId) {
                   <td>${escHtml(r.realName)}</td>
                   <td>${r.gender || '—'}</td>
                   <td>${r.degree || '—'}</td>
-                  <td>${r.schoolWork || '—'}</td>
+                  <td>${r.idNumber || '—'}</td>
+                  <td>${r.phoneNumber || '—'}</td>
+                  <td>
+                    <span style="display:inline-block;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;">${escHtml(r.schoolWork || '—')}</span>
+                    ${r.schoolWork && r.schoolWork.length > 10 ? `<button class="btn btn-outline btn-sm" style="margin-left:4px;" onclick="event.stopPropagation();showIntroDetail('${r.registrationId}')">查看</button>` : ''}
+                  </td>
                   <td>${r.entryTime}</td>
                   <td><span class="tag ${auditClassMap[r.auditState]}">${auditMap[r.auditState]}</span></td>
                   <td>
@@ -211,6 +214,14 @@ async function loadRegistrations(activityId) {
   }
 }
 
+function showIntroDetail(regId) {
+  const r = (window._regList || []).find(x => x.registrationId === regId);
+  if (!r) return;
+  document.getElementById('introModalTitle').textContent = escHtml(r.realName) + ' — 自我介绍';
+  document.getElementById('introModalContent').textContent = r.schoolWork || '（无内容）';
+  document.getElementById('introModal').classList.add('show');
+}
+
 function openRegisterModal() {
   if (!isLoggedIn()) {
     showToast('请先登录后再报名', 'warning');
@@ -225,24 +236,11 @@ function closeModal() {
 }
 
 async function submitRegistration() {
-  const realName = document.getElementById('regRealName').value.trim();
-  const phoneNumber = document.getElementById('regPhone').value.trim();
-  const gender = document.getElementById('regGender').value;
-  const degree = document.getElementById('regDegree').value;
   const schoolWork = document.getElementById('regSchoolWork').value.trim();
-
-  if (!realName || !phoneNumber) {
-    showToast('请填写必填信息', 'warning');
-    return;
-  }
 
   try {
     await registrationApi.submit({
       activityId: currentActivityId,
-      realName,
-      phoneNumber,
-      gender,
-      degree,
       schoolWork
     });
     showToast('报名提交成功，请等待学校审核', 'success');
@@ -271,6 +269,10 @@ function escHtml(str) {
 
 document.getElementById('registerModal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
+});
+
+document.getElementById('introModal').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('show');
 });
 
 loadDetail();

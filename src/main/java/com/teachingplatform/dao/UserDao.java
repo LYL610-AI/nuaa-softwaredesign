@@ -39,6 +39,7 @@ public class UserDao {
         user.put("registerTime", row.get("register_time") != null ? row.get("register_time").toString() : "");
         if (role == 1) user.put("userName", row.get("user_name"));
         if (role == 2) user.put("schoolName", row.get("school_name"));
+        if (role == 3) user.put("userName", row.get("user_name"));
         user.put("token", JwtUtil.generate(userId, (int) row.get("user_permission")));
         return user;
     }
@@ -105,11 +106,14 @@ public class UserDao {
             user.put("address", row.get("address"));
             user.put("license", row.get("license"));
             user.put("principle", row.get("principle"));
+        } else {
+            user.put("userName", row.get("user_name"));
         }
         return user;
     }
 
     public boolean updatePassword(String userId, int permission, String oldPwd, String newPwd) {
+        if (permission == 3) return false; // 管理员不能修改自己的密码
         String table;
         if (permission == 1) table = "volunteer_user";
         else if (permission == 2) table = "school_user";

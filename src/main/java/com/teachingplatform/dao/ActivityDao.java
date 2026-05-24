@@ -18,7 +18,7 @@ public class ActivityDao {
 
     public List<Activity> list(String keyword, String region, String state, String auditState, int page, int pageSize) {
         StringBuilder sql = new StringBuilder(
-            "SELECT a.*, s.principle as school_name FROM activity a " +
+            "SELECT a.*, s.school_name, s.principle, s.user_phone as school_phone FROM activity a " +
             "LEFT JOIN school_user s ON a.user_id = s.user_id WHERE 1=1"
         );
         List<Object> params = new ArrayList<>();
@@ -75,17 +75,17 @@ public class ActivityDao {
     }
 
     public Activity detail(String activityId) {
-        String sql = "SELECT a.*, s.principle as school_name FROM activity a LEFT JOIN school_user s ON a.user_id = s.user_id WHERE a.activity_id = ?";
+        String sql = "SELECT a.*, s.school_name, s.principle, s.user_phone as school_phone FROM activity a LEFT JOIN school_user s ON a.user_id = s.user_id WHERE a.activity_id = ?";
         List<Activity> list = jdbc.query(sql, (rs, rowNum) -> mapActivity(rs), activityId);
         return list.isEmpty() ? null : list.get(0);
     }
 
     public boolean create(Activity act) {
         act.setActivityId(IdGenerator.generate());
-        String sql = "INSERT INTO activity (activity_id, title, content, recruits_number, volunteer_duration, activity_state, audit_state, publish_time, user_id, school_address) VALUES (?, ?, ?, ?, ?, '0', '0', NOW(), ?, ?)";
+        String sql = "INSERT INTO activity (activity_id, title, content, recruits_number, start_date, end_date, activity_state, audit_state, publish_time, user_id, school_address, picture_url) VALUES (?, ?, ?, ?, ?, ?, '0', '0', NOW(), ?, ?, ?)";
         return jdbc.update(sql,
                 act.getActivityId(), act.getTitle(), act.getContent(), act.getRecruitsNumber(),
-                act.getVolunteerDuration(), act.getUserId(), act.getSchoolAddress()) > 0;
+                act.getStartDate(), act.getEndDate(), act.getUserId(), act.getSchoolAddress(), act.getPictureUrl()) > 0;
     }
 
     public boolean review(String activityId, String auditState) {
@@ -94,8 +94,8 @@ public class ActivityDao {
     }
 
     public boolean update(Activity act) {
-        String sql = "UPDATE activity SET title = ?, content = ?, recruits_number = ?, volunteer_duration = ?, activity_state = ?, school_address = ? WHERE activity_id = ?";
-        return jdbc.update(sql, act.getTitle(), act.getContent(), act.getRecruitsNumber(), act.getVolunteerDuration(), act.getActivityState(), act.getSchoolAddress(), act.getActivityId()) > 0;
+        String sql = "UPDATE activity SET title = ?, content = ?, recruits_number = ?, start_date = ?, end_date = ?, activity_state = ?, school_address = ?, picture_url = ? WHERE activity_id = ?";
+        return jdbc.update(sql, act.getTitle(), act.getContent(), act.getRecruitsNumber(), act.getStartDate(), act.getEndDate(), act.getActivityState(), act.getSchoolAddress(), act.getPictureUrl(), act.getActivityId()) > 0;
     }
 
     public boolean changeState(String activityId, String activityState) {
@@ -110,7 +110,7 @@ public class ActivityDao {
 
     public List<Activity> listSummaries(String auditState, int page, int pageSize) {
         StringBuilder sql = new StringBuilder(
-            "SELECT a.*, s.principle as school_name FROM activity a " +
+            "SELECT a.*, s.school_name, s.principle, s.user_phone as school_phone FROM activity a " +
             "LEFT JOIN school_user s ON a.user_id = s.user_id " +
             "WHERE a.summary_title IS NOT NULL"
         );
@@ -139,12 +139,12 @@ public class ActivityDao {
     }
 
     public List<Activity> listReviewed(int page, int pageSize) {
-        String sql = "SELECT a.*, s.principle as school_name FROM activity a LEFT JOIN school_user s ON a.user_id = s.user_id WHERE a.audit_state IN ('1','2') ORDER BY a.audit_time DESC LIMIT ?, ?";
+        String sql = "SELECT a.*, s.school_name, s.principle, s.user_phone as school_phone FROM activity a LEFT JOIN school_user s ON a.user_id = s.user_id WHERE a.audit_state IN ('1','2') ORDER BY a.audit_time DESC LIMIT ?, ?";
         return jdbc.query(sql, (rs, rowNum) -> mapActivity(rs), (page - 1) * pageSize, pageSize);
     }
 
     public List<Activity> listSummariesReviewed(int page, int pageSize) {
-        String sql = "SELECT a.*, s.principle as school_name FROM activity a LEFT JOIN school_user s ON a.user_id = s.user_id WHERE a.summary_title IS NOT NULL AND a.summary_audit_state IN ('1','2') ORDER BY a.summary_submit_time DESC LIMIT ?, ?";
+        String sql = "SELECT a.*, s.school_name, s.principle, s.user_phone as school_phone FROM activity a LEFT JOIN school_user s ON a.user_id = s.user_id WHERE a.summary_title IS NOT NULL AND a.summary_audit_state IN ('1','2') ORDER BY a.summary_submit_time DESC LIMIT ?, ?";
         return jdbc.query(sql, (rs, rowNum) -> mapActivitySummary(rs), (page - 1) * pageSize, pageSize);
     }
 
@@ -188,7 +188,7 @@ public class ActivityDao {
     }
 
     public List<Activity> myActivities(String userId) {
-        String sql = "SELECT a.*, s.principle as school_name FROM activity a LEFT JOIN school_user s ON a.user_id = s.user_id WHERE a.user_id = ? ORDER BY a.publish_time DESC";
+        String sql = "SELECT a.*, s.school_name, s.principle, s.user_phone as school_phone FROM activity a LEFT JOIN school_user s ON a.user_id = s.user_id WHERE a.user_id = ? ORDER BY a.publish_time DESC";
         return jdbc.query(sql, (rs, rowNum) -> mapActivity(rs), userId);
     }
 
@@ -198,18 +198,22 @@ public class ActivityDao {
         a.setTitle(rs.getString("title"));
         a.setContent(rs.getString("content"));
         a.setRecruitsNumber(rs.getInt("recruits_number"));
-        a.setVolunteerDuration(rs.getInt("volunteer_duration"));
+        try { a.setStartDate(rs.getString("start_date")); } catch (java.sql.SQLException ignored) {}
+        try { a.setEndDate(rs.getString("end_date")); } catch (java.sql.SQLException ignored) {}
         a.setActivityState(rs.getString("activity_state"));
         a.setAuditState(rs.getString("audit_state"));
         a.setAuditTime(rs.getString("audit_time"));
         a.setPublishTime(rs.getString("publish_time"));
         a.setUserId(rs.getString("user_id"));
         try { a.setSchoolName(rs.getString("school_name")); } catch (java.sql.SQLException ignored) {}
+        try { a.setPrinciple(rs.getString("principle")); } catch (java.sql.SQLException ignored) {}
+        try { a.setSchoolPhone(rs.getString("school_phone")); } catch (java.sql.SQLException ignored) {}
         try { a.setSchoolAddress(rs.getString("school_address")); } catch (java.sql.SQLException ignored) {}
         try { a.setSummaryTitle(rs.getString("summary_title")); } catch (java.sql.SQLException ignored) {}
         try { a.setSummaryContent(rs.getString("summary_content")); } catch (java.sql.SQLException ignored) {}
         try { a.setSummaryAuditState(rs.getString("summary_audit_state")); } catch (java.sql.SQLException ignored) {}
         try { a.setSummarySubmitTime(rs.getString("summary_submit_time")); } catch (java.sql.SQLException ignored) {}
+        try { a.setPictureUrl(rs.getString("picture_url")); } catch (java.sql.SQLException ignored) {}
         return a;
     }
 
@@ -219,6 +223,7 @@ public class ActivityDao {
         try { a.setSummaryContent(rs.getString("summary_content")); } catch (java.sql.SQLException ignored) {}
         try { a.setSummaryAuditState(rs.getString("summary_audit_state")); } catch (java.sql.SQLException ignored) {}
         try { a.setSummarySubmitTime(rs.getString("summary_submit_time")); } catch (java.sql.SQLException ignored) {}
+        try { a.setPictureUrl(rs.getString("picture_url")); } catch (java.sql.SQLException ignored) {}
         return a;
     }
 }

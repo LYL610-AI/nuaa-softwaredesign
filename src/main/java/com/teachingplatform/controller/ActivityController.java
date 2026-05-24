@@ -54,14 +54,22 @@ public class ActivityController {
     }
 
     @PutMapping("/review/{id}")
-    public Result review(@PathVariable String id, @RequestBody Map<String, String> body) {
+    public Result review(@PathVariable String id, @RequestBody Map<String, String> body, HttpServletRequest req) {
+        int permission = (int) req.getAttribute("permission");
+        if (permission != 3) {
+            return Result.error(403, "仅管理员可审核活动");
+        }
         String state = body.get("auditState");
         boolean ok = activityService.review(id, state);
         return ok ? Result.ok() : Result.error(500, "审核失败");
     }
 
     @PutMapping("/summary/review/{id}")
-    public Result reviewSummary(@PathVariable String id, @RequestBody Map<String, String> body) {
+    public Result reviewSummary(@PathVariable String id, @RequestBody Map<String, String> body, HttpServletRequest req) {
+        int permission = (int) req.getAttribute("permission");
+        if (permission != 3) {
+            return Result.error(403, "仅管理员可审核活动总结");
+        }
         String state = body.get("auditState");
         boolean ok = activityService.reviewSummary(id, state);
         return ok ? Result.ok() : Result.error(500, "审核失败");

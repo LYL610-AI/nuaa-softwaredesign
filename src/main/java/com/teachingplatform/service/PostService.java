@@ -27,7 +27,12 @@ public class PostService {
         return postDao.create(p);
     }
 
-    public boolean delete(String postId) {
+    public boolean delete(String postId, String userId, int permission) {
+        Post existing = postDao.detail(postId);
+        if (existing == null) return false;
+        if (!existing.getUserId().equals(userId) && permission != 3) {
+            return false;
+        }
         return postDao.delete(postId);
     }
 

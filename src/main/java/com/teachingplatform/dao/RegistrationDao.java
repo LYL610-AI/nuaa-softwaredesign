@@ -67,6 +67,19 @@ public class RegistrationDao {
         return jdbc.query(sql.toString(), (rs, rowNum) -> mapRegistration(rs), params.toArray());
     }
 
+    public Registration findById(String registrationId) {
+        String sql = "SELECT r.*, a.title as activity_title FROM registration r LEFT JOIN activity a ON r.activity_id = a.activity_id WHERE r.registration_id = ?";
+        List<Registration> list = jdbc.query(sql, (rs, rowNum) -> mapRegistration(rs), registrationId);
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    public int countByActivity(String activityId) {
+        Integer count = jdbc.queryForObject(
+            "SELECT COUNT(*) FROM registration WHERE activity_id = ? AND audit_state = '1'",
+            Integer.class, activityId);
+        return count != null ? count : 0;
+    }
+
     private Registration mapRegistration(java.sql.ResultSet rs) throws java.sql.SQLException {
         Registration r = new Registration();
         r.setRegistrationId(rs.getString("registration_id"));

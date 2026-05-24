@@ -23,6 +23,7 @@ public class AuthInterceptor implements HandlerInterceptor {
                 uri.contains("/api/post/list") ||
                 uri.contains("/api/post/detail/") ||
                 uri.contains("/api/comment/list/") ||
+                uri.contains("/api/registration/count/") ||
                 uri.contains("/api/user/checkPhone") ||
                 uri.contains("/api/user/checkIdNumber") ||
                 uri.contains("/api/user/checkLicense"))) {

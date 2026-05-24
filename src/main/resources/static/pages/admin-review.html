@@ -252,10 +252,10 @@ async function viewActivityDetail(id) {
       <p><strong>标题：</strong>${escHtml(a.title)}</p>
       <p><strong>学校：</strong>${escHtml(a.schoolName || '')}</p>
       <p><strong>地址：</strong>${escHtml(a.schoolAddress || '')}</p>
-      <p><strong>招募人数：</strong>${a.recruitsNumber} | <strong>志愿时长：</strong>${a.volunteerDuration}h</p>
+      <p><strong>招募人数：</strong>${a.recruitsNumber}</p>
       <p><strong>发布时间：</strong>${a.publishTime}</p>
       <p><strong>活动内容：</strong></p>
-      <p style="white-space:pre-wrap;line-height:1.8;color:var(--text-secondary);">${escHtml(a.content)}</p>
+      <p style="max-height:350px;overflow-y:auto;overflow-x:hidden;word-break:break-all;white-space:pre-wrap;line-height:1.8;color:var(--text-secondary);">${escHtml(a.content)}</p>
     `, null);
   } catch (err) { showToast('加载详情失败', 'error'); }
 }
@@ -269,7 +269,7 @@ async function viewPostDetail(id) {
       <p><strong>关联活动：</strong>${escHtml(p.activityTitle || '活动' + p.activityId)}</p>
       <p><strong>发布时间：</strong>${p.publishTime}</p>
       <p><strong>内容：</strong></p>
-      <p style="white-space:pre-wrap;line-height:1.8;color:var(--text-secondary);">${escHtml(p.content)}</p>
+      <p style="max-height:350px;overflow-y:auto;overflow-x:hidden;word-break:break-all;white-space:pre-wrap;line-height:1.8;color:var(--text-secondary);">${escHtml(p.content)}</p>
     `, null);
   } catch (err) { showToast('加载详情失败', 'error'); }
 }
@@ -286,7 +286,7 @@ async function viewSummaryDetail(id) {
       <p><strong>总结标题：</strong>${escHtml(s.summaryTitle || '')}</p>
       <p><strong>提交时间：</strong>${s.summarySubmitTime || '—'}</p>
       <p><strong>总结内容：</strong></p>
-      <p style="white-space:pre-wrap;line-height:1.8;color:var(--text-secondary);">${escHtml(s.summaryContent || '')}</p>
+      <p style="max-height:350px;overflow-y:auto;overflow-x:hidden;word-break:break-all;white-space:pre-wrap;line-height:1.8;color:var(--text-secondary);">${escHtml(s.summaryContent || '')}</p>
     `, null);
   } catch (err) { showToast('加载详情失败', 'error'); }
 }

@@ -52,13 +52,19 @@ public class PostController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public Result delete(@PathVariable String id) {
-        boolean ok = service.delete(id);
-        return ok ? Result.ok() : Result.error(500, "删除失败");
+    public Result delete(@PathVariable String id, HttpServletRequest req) {
+        String userId = (String) req.getAttribute("userId");
+        int permission = (int) req.getAttribute("permission");
+        boolean ok = service.delete(id, userId, permission);
+        return ok ? Result.ok() : Result.error(403, "无权删除此帖子");
     }
 
     @PutMapping("/review/{id}")
-    public Result review(@PathVariable String id, @RequestBody Map<String, String> body) {
+    public Result review(@PathVariable String id, @RequestBody Map<String, String> body, HttpServletRequest req) {
+        int permission = (int) req.getAttribute("permission");
+        if (permission != 3) {
+            return Result.error(403, "仅管理员可审核帖子");
+        }
         String state = body.get("auditState");
         boolean ok = service.review(id, state);
         return ok ? Result.ok() : Result.error(500, "审核失败");

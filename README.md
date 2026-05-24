@@ -2,7 +2,7 @@
 
 基于 Web 的支教活动全流程管理平台，连接支教学校与志愿者，支持活动发布、报名审核、社区互动等功能。
 
-**技术栈**：HTML5 + CSS3 + JavaScript（前端）/ Spring Boot 3.2.5 + JdbcTemplate（后端）/ MySQL 8.0（数据库）/ 内嵌 Tomcat（部署）
+**技术栈**：HTML5 + CSS3 + JavaScript（前端）/ Spring Boot 3.2.5 + JdbcTemplate（后端）/ MySQL 8.0（数据库）/ 内嵌 Tomcat（部署）/ 图片上传（multipart）
 
 ---
 
@@ -28,7 +28,7 @@
 
 ### 2. 支教活动模块
 
-- 学校用户发布招募信息：标题、内容、招募人数、志愿时长、活动地址
+- 学校用户发布招募信息：标题、内容、招募人数、活动地址、封面图片（可选上传）
 - 管理员审核活动（通过/退回），审核通过后前端可见
 - 所有用户可查看已通过的活动列表
 - 支持按标题关键字、地区、活动状态搜索筛选
@@ -44,7 +44,7 @@
 
 ### 4. 社区互动模块
 
-- 用户在已结束的支教活动下发布主题帖，提交后需管理员审核
+- 用户发布主题帖（支持可选上传图片），提交后需管理员审核
 - 所有用户可在帖子详情中发表评论
 - 帖子发布者或管理员可删除帖子
 - 评论发布者或管理员可删除评论
@@ -74,13 +74,14 @@ web设计/
 │   │   └── WebConfig.java                    # 拦截器注册
 │   ├── interceptor/
 │   │   └── AuthInterceptor.java              # JWT 认证拦截器
-│   ├── controller/                           # REST 控制器（5个）
+│   ├── controller/                           # REST 控制器（6个）
 │   │   ├── UserController.java               # /api/user/*
 │   │   ├── ActivityController.java           # /api/activity/*
 │   │   ├── RegistrationController.java       # /api/registration/*
 │   │   ├── PostController.java               # /api/post/*
-│   │   └── CommentController.java            # /api/comment/*
-│   ├── service/                              # 业务逻辑层（5个）
+│   │   ├── CommentController.java            # /api/comment/*
+│   │   └── FileController.java               # /api/file/*
+│   ├── service/                              # 业务逻辑层（6个）
 │   ├── dao/                                  # 数据访问层（JdbcTemplate）
 │   ├── entity/                               # 实体类（8个）
 │   └── util/                                 # JwtUtil + Result
@@ -180,10 +181,10 @@ web设计/
 | `school_user` | 学校用户表 | user_id(PK), user_password, type, address, license, principle, user_phone, register_time |
 | `volunteer_user` | 志愿者用户表 | user_id(PK), user_password, user_identity, user_sex, user_edu, user_phone, register_time |
 | `administrator` | 管理员表 | user_id(PK), user_password, user_permission, user_phone, register_time |
-| `activity` | 支教活动表 | activity_id(PK AUTO_INCREMENT), user_id(FK), title, content, recruits_number, volunteer_duration, activity_state, audit_state, audit_time, publish_time |
-| `registration` | 报名表 | registration_id(PK AUTO_INCREMENT), phone_number, real_name, id_number, gender, degree, school_work, audit_state, entry_time, activity_id(FK), user_id(FK) |
-| `post` | 主题帖表 | post_id(PK AUTO_INCREMENT), title, content, audit_state, audit_time, publish_time, activity_id(FK), user_id(FK) |
-| `comment` | 评论表 | comment_id(PK AUTO_INCREMENT), title, content, publish_time, post_id(FK), user_id(FK) |
+| `activity` | 支教活动表 | activity_id(PK), user_id(FK), title, content, recruits_number, school_address, start_date, end_date, activity_state, audit_state, picture_url, publish_time |
+| `registration` | 报名表 | registration_id(PK), user_id(FK), activity_id(FK), phone_number, real_name, id_number, gender, degree, introduce, audit_state, entry_time |
+| `post` | 主题帖表 | post_id(PK), user_id(FK), activity_id(FK), title, content, picture_url, audit_state, publish_time, audit_time |
+| `comment` | 评论表 | comment_id(PK), post_id(FK), user_id(FK), content, publish_time |
 
 **状态枚举**：
 
@@ -227,6 +228,7 @@ web设计/
 | 评论 | GET | `/api/comment/list/:postId` | 评论列表 | 公开 |
 | 评论 | POST | `/api/comment/create` | 发表评论 | 登录 |
 | 评论 | DELETE | `/api/comment/delete/:id` | 删除评论 | 发布者/管理员 |
+| 文件 | POST | `/api/file/upload` | 上传图片（multipart，返回 URL） | 登录 |
 
 ---
 
@@ -257,17 +259,22 @@ Nginx (:80) ── 反向代理 ──► Spring Boot (:8080, 内嵌 Tomcat)
 # 2. 打包
 mvn clean package -DskipTests
 
-# 3. 上传 JAR 到服务器
-scp target/teaching-platform-1.0.0.jar root@服务器IP:/www/wwwroot/
+# 3. 确保上传目录存在
+mkdir -p /www/wwwroot/software_design/pictures
 
-# 4. 创建数据库（默认库名 software_design）并按第五节表结构建表
+# 4. 上传 JAR 到服务器
+scp target/2.0.jar root@服务器IP:/www/wwwroot/software_design/
+
+# 5. 创建数据库（默认库名 software_design）并导入 software_design.sql
 mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS software_design DEFAULT CHARSET utf8mb4"
+mysql -u root -p software_design < software_design.sql
 
-# 5. 启动
-java -jar /www/wwwroot/teaching-platform-1.0.0.jar &
+# 6. 启动
+java -jar /www/wwwroot/software_design/2.0.jar &
 
-# 6. （可选）Nginx 反向代理
+# 7. （可选）Nginx 反向代理
 # location / { proxy_pass http://127.0.0.1:8080; }
+# location /uploads/ { alias /www/wwwroot/software_design/pictures/; }
 ```
 
 ---

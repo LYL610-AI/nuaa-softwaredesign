@@ -74,6 +74,7 @@ function renderPost(p) {
       <span>&#128197; ${(p.publishTime || '').split(' ')[0]}</span>
       ${p.activityTitle ? `<span style="color:var(--primary);">关联活动：${escHtml(p.activityTitle)}</span>` : ''}
     </div>
+    ${p.pictureUrl ? `<img src="${p.pictureUrl}" alt="帖子图片" style="max-width:100%;max-height:400px;border-radius:8px;margin-bottom:16px;display:block;">` : ''}
     <p style="line-height:1.8;color:var(--text-secondary);white-space:pre-wrap;">${escHtml(p.content)}</p>
   `;
 }

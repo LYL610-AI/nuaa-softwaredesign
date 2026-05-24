@@ -39,10 +39,11 @@
 |------|------|:---:|:---:|------|
 | user_id | varchar(10) | NO | PK | 系统生成的用户唯一ID |
 | user_password | varchar(255) | NO | | 明文密码 |
-| user_permission | int | NO | | 固定值 3（标识角色） |
+| user_permission | int | YES | | 固定值 3（标识角色） |
 | user_phone | varchar(20) | NO | | 手机号，用于登录 |
 | register_time | datetime | NO | | 注册时间 |
- 
+| user_name | varchar(50) | YES | | 管理员姓名 |
+
 ## 4. activity — 活动
 
 | 字段 | 类型 | 空 | 键 | 说明 |
@@ -55,9 +56,8 @@
 | school_address | text | YES | | 活动地址（冗余自学校地址） |
 | start_date | date | YES | | 活动开始日期 |
 | end_date | date | YES | | 活动结束日期 |
-| volunteer_duration | int | YES | | 志愿时长（小时） |
-| activity_state | text | NO | | 活动状态：`'0'` 招募中 / `'1'` 进行中 / `'2'` 已结束 |
-| audit_state | text | NO | | 审核状态：`'0'` 待审核 / `'1'` 通过 / `'2'` 未通过 |
+| activity_state | int | NO | | 活动状态：`'0'` 招募中 / `'1'` 进行中 / `'2'` 已结束 |
+| audit_state | int | NO | | 审核状态：`'0'` 待审核 / `'1'` 通过 / `'2'` 未通过 |
 | audit_time | datetime | YES | | 审核时间 |
 | publish_time | datetime | NO | | 发布时间 |
 | summary | text | YES | | **已废弃** |
@@ -66,6 +66,7 @@
 | summary_content | text | YES | | 活动总结内容 |
 | summary_audit_state | varchar(2) | YES | | 总结审核状态：`'0'` 待审核 / `'1'` 通过 / `'2'` 未通过 |
 | summary_submit_time | datetime | YES | | 总结提交时间 |
+| picture_url | text | NO | | 封面图片 URL，默认为空字符串 |
 
 ## 5. post — 讨论帖
 
@@ -75,20 +76,21 @@
 | user_id | varchar(10) | YES | FK | 发布者用户ID |
 | title | varchar(100) | NO | | 帖子标题 |
 | content | text | NO | | 帖子内容 |
-| activity_id | varchar(10) | YES | FK | 关联活动ID |
-| audit_state | text | NO | | 审核状态：`'0'` 待审核 / `'1'` 通过 / `'2'` 未通过 |
-| audit_time | datetime | YES | | 审核时间 |
+| audit_state | int | NO | | 审核状态：`'0'` 待审核 / `'1'` 通过 / `'2'` 未通过 |
 | publish_time | datetime | NO | | 发布时间 |
+| activity_id | varchar(10) | YES | FK | 关联活动ID |
+| audit_time | datetime | YES | | 审核时间 |
+| picture_url | text | NO | | 图片 URL，默认为空字符串 |
 
 ## 6. comment — 评论
 
 | 字段 | 类型 | 空 | 键 | 说明 |
 |------|------|:---:|:---:|------|
 | comment_id | varchar(10) | NO | PK | 系统生成的评论唯一ID |
-| post_id | varchar(10) | YES | FK | 所属帖子ID |
-| user_id | varchar(10) | YES | FK | 评论者用户ID |
 | content | text | NO | | 评论内容 |
 | publish_time | datetime | NO | | 发布时间 |
+| post_id | varchar(10) | YES | FK | 所属帖子ID |
+| user_id | varchar(10) | YES | FK | 评论者用户ID |
 
 ## 7. registration — 活动报名
 
@@ -97,13 +99,13 @@
 | registration_id | varchar(10) | NO | PK | 系统生成的报名唯一ID |
 | user_id | varchar(10) | YES | FK | 报名者（志愿者）用户ID |
 | activity_id | varchar(10) | YES | FK | 报名的活动ID |
-| real_name | varchar(100) | NO | | 报名时填写的真实姓名 |
 | phone_number | varchar(20) | YES | | 报名时填写的手机号 |
-| id_number | varchar(18) | NO | | 报名时填写的身份证号（当前版本报名表单已移除此字段） |
+| real_name | varchar(100) | NO | | 报名时填写的真实姓名 |
+| id_number | varchar(18) | YES | | 报名时填写的身份证号（现由后端从用户资料自动填充） |
 | gender | varchar(100) | YES | | 性别 |
 | degree | varchar(200) | YES | | 学历 |
 | introduce | text | YES | | 自我介绍（前端字段名 schoolWork） |
-| audit_state | text | NO | | 审核状态：`'0'` 待审核 / `'1'` 通过 / `'2'` 未通过 |
+| audit_state | int | NO | | 审核状态：`'0'` 待审核 / `'1'` 通过 / `'2'` 未通过 |
 | entry_time | datetime | NO | | 报名时间 |
 
 ## 8. user — 旧用户表（未使用）
@@ -127,9 +129,9 @@
 | user_permission | 1 | 志愿者 |
 | | 2 | 学校用户 |
 | | 3 | 管理员 |
-| activity_state | '0' | 招募中 |
-| | '1' | 进行中 |
-| | '2' | 已结束 |
-| audit_state / summary_audit_state | '0' | 待审核 |
-| | '1' | 审核通过 |
-| | '2' | 未通过 |
+| activity_state | 0 | 招募中 |
+| | 1 | 进行中 |
+| | 2 | 已结束 |
+| audit_state / summary_audit_state | 0 | 待审核 |
+| | 1 | 审核通过 |
+| | 2 | 未通过 |

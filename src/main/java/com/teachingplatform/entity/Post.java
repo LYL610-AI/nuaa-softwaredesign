@@ -12,6 +12,7 @@ public class Post {
     private String authorName;
     private String activityTitle;
     private int commentCount;
+    private String pictureUrl;
 
     public String getPostId() { return postId; }
     public void setPostId(String postId) { this.postId = postId; }
@@ -35,4 +36,6 @@ public class Post {
     public void setActivityTitle(String activityTitle) { this.activityTitle = activityTitle; }
     public int getCommentCount() { return commentCount; }
     public void setCommentCount(int commentCount) { this.commentCount = commentCount; }
+    public String getPictureUrl() { return pictureUrl; }
+    public void setPictureUrl(String pictureUrl) { this.pictureUrl = pictureUrl; }
 }

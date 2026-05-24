@@ -916,3 +916,19 @@ tbody tr:hover {
   color: var(--text-muted);
   margin-top: 4px;
 }
+
+/* 图片上传区域 */
+.image-upload-box {
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  padding: 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.image-upload-box:hover {
+  border-color: var(--primary);
+  background: var(--primary-bg);
+}

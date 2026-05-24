@@ -13,7 +13,7 @@
 
     <groupId>com.teachingplatform</groupId>
     <artifactId>teaching-platform</artifactId>
-    <version>1.0.0</version>
+    <version>2.0</version>
     <packaging>jar</packaging>
     <name>支教信息发布平台</name>
 
@@ -38,6 +38,7 @@
     </dependencies>
 
     <build>
+        <finalName>2.0</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

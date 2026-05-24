@@ -68,6 +68,9 @@ public class UserController {
     public Result changePassword(@RequestBody Map<String, String> body, HttpServletRequest req) {
         String userId = (String) req.getAttribute("userId");
         int permission = (int) req.getAttribute("permission");
+        if (permission == 3) {
+            return Result.error(403, "管理员不支持修改密码");
+        }
         boolean ok = userService.changePassword(userId, permission, body.get("oldPwd"), body.get("newPwd"));
         if (!ok) {
             return Result.error(400, "原密码错误");

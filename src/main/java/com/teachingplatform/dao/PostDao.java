@@ -59,8 +59,8 @@ public class PostDao {
 
     public boolean create(Post p) {
         p.setPostId(IdGenerator.generate());
-        String sql = "INSERT INTO post (post_id, title, content, audit_state, publish_time, activity_id, user_id) VALUES (?, ?, ?, '0', NOW(), ?, ?)";
-        return jdbc.update(sql, p.getPostId(), p.getTitle(), p.getContent(), p.getActivityId(), p.getUserId()) > 0;
+        String sql = "INSERT INTO post (post_id, title, content, audit_state, publish_time, activity_id, user_id, picture_url) VALUES (?, ?, ?, '0', NOW(), ?, ?, ?)";
+        return jdbc.update(sql, p.getPostId(), p.getTitle(), p.getContent(), p.getActivityId(), p.getUserId(), p.getPictureUrl()) > 0;
     }
 
     public boolean delete(String postId) {
@@ -74,8 +74,8 @@ public class PostDao {
     }
 
     public boolean update(Post p) {
-        String sql = "UPDATE post SET title = ?, content = ? WHERE post_id = ?";
-        return jdbc.update(sql, p.getTitle(), p.getContent(), p.getPostId()) > 0;
+        String sql = "UPDATE post SET title = ?, content = ?, picture_url = ? WHERE post_id = ?";
+        return jdbc.update(sql, p.getTitle(), p.getContent(), p.getPictureUrl(), p.getPostId()) > 0;
     }
 
     public List<Post> listReviewed(int page, int pageSize) {
@@ -114,6 +114,7 @@ public class PostDao {
         try { p.setAuthorName(rs.getString("author_name")); } catch (java.sql.SQLException ignored) {}
         try { p.setActivityTitle(rs.getString("activity_title")); } catch (java.sql.SQLException ignored) {}
         try { p.setCommentCount(rs.getInt("comment_count")); } catch (java.sql.SQLException ignored) {}
+        try { p.setPictureUrl(rs.getString("picture_url")); } catch (java.sql.SQLException ignored) {}
         return p;
     }
 }

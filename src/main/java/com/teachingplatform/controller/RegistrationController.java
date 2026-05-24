@@ -36,6 +36,11 @@ public class RegistrationController {
         return Result.ok(service.listByActivity(activityId));
     }
 
+    @GetMapping("/count/{activityId}")
+    public Result count(@PathVariable String activityId) {
+        return Result.ok(service.countByActivity(activityId));
+    }
+
     @PostMapping("/submit")
     public Result submit(@RequestBody Registration reg, HttpServletRequest req) {
         String userId = (String) req.getAttribute("userId");
@@ -53,9 +58,10 @@ public class RegistrationController {
     }
 
     @DeleteMapping("/cancel/{id}")
-    public Result cancel(@PathVariable String id) {
-        boolean ok = service.cancel(id);
-        return ok ? Result.ok() : Result.error(500, "取消失败");
+    public Result cancel(@PathVariable String id, HttpServletRequest req) {
+        String userId = (String) req.getAttribute("userId");
+        boolean ok = service.cancel(id, userId);
+        return ok ? Result.ok() : Result.error(403, "无权取消此报名");
     }
 
     @PutMapping("/review/{id}")
@@ -64,8 +70,9 @@ public class RegistrationController {
         if (permission != 2) {
             return Result.error(403, "仅学校用户可审核报名");
         }
+        String userId = (String) req.getAttribute("userId");
         String state = body.get("auditState");
-        boolean ok = service.review(id, state);
-        return ok ? Result.ok() : Result.error(500, "审核失败");
+        boolean ok = service.review(id, state, userId);
+        return ok ? Result.ok() : Result.error(403, "无权审核此报名");
     }
 }

@@ -5,18 +5,22 @@ public class Activity {
     private String title;
     private String content;
     private int recruitsNumber;
-    private int volunteerDuration;
+    private String startDate;
+    private String endDate;
     private String activityState;
     private String auditState;
     private String auditTime;
     private String publishTime;
     private String userId;
     private String schoolName;
+    private String principle;
+    private String schoolPhone;
     private String schoolAddress;
     private String summaryTitle;
     private String summaryContent;
     private String summaryAuditState;
     private String summarySubmitTime;
+    private String pictureUrl;
 
     public String getActivityId() { return activityId; }
     public void setActivityId(String activityId) { this.activityId = activityId; }
@@ -26,8 +30,10 @@ public class Activity {
     public void setContent(String content) { this.content = content; }
     public int getRecruitsNumber() { return recruitsNumber; }
     public void setRecruitsNumber(int recruitsNumber) { this.recruitsNumber = recruitsNumber; }
-    public int getVolunteerDuration() { return volunteerDuration; }
-    public void setVolunteerDuration(int volunteerDuration) { this.volunteerDuration = volunteerDuration; }
+    public String getStartDate() { return startDate; }
+    public void setStartDate(String startDate) { this.startDate = startDate; }
+    public String getEndDate() { return endDate; }
+    public void setEndDate(String endDate) { this.endDate = endDate; }
     public String getActivityState() { return activityState; }
     public void setActivityState(String activityState) { this.activityState = activityState; }
     public String getAuditState() { return auditState; }
@@ -40,6 +46,10 @@ public class Activity {
     public void setUserId(String userId) { this.userId = userId; }
     public String getSchoolName() { return schoolName; }
     public void setSchoolName(String schoolName) { this.schoolName = schoolName; }
+    public String getPrinciple() { return principle; }
+    public void setPrinciple(String principle) { this.principle = principle; }
+    public String getSchoolPhone() { return schoolPhone; }
+    public void setSchoolPhone(String schoolPhone) { this.schoolPhone = schoolPhone; }
     public String getSchoolAddress() { return schoolAddress; }
     public void setSchoolAddress(String schoolAddress) { this.schoolAddress = schoolAddress; }
     public String getAddress() { return schoolAddress; }
@@ -52,4 +62,6 @@ public class Activity {
     public void setSummaryAuditState(String summaryAuditState) { this.summaryAuditState = summaryAuditState; }
     public String getSummarySubmitTime() { return summarySubmitTime; }
     public void setSummarySubmitTime(String summarySubmitTime) { this.summarySubmitTime = summarySubmitTime; }
+    public String getPictureUrl() { return pictureUrl; }
+    public void setPictureUrl(String pictureUrl) { this.pictureUrl = pictureUrl; }
 }
