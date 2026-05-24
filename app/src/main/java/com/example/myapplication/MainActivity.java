@@ -27,9 +27,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
         ApiConfig.init(this);
+        SessionManager.init(this);
+
+        // 已有登录状态，直接跳转
+        if (SessionManager.hasLoggedIn()) {
+            navigateAfterLogin(SessionManager.getCurrentUser());
+            return;
+        }
+
+        setContentView(R.layout.activity_main);
 
         EditText etUsername = findViewById(R.id.et_username);
         EditText etPassword = findViewById(R.id.et_password);
