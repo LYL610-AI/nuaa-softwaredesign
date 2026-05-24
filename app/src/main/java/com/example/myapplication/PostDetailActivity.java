@@ -85,12 +85,23 @@ public class PostDetailActivity extends AppCompatActivity {
         fetchComments();
 
         EditText etInput = findViewById(R.id.et_comment_input);
-        findViewById(R.id.btn_send_comment).setOnClickListener(v -> {
-            String content = etInput.getText().toString().trim();
-            if (!content.isEmpty()) {
-                submitComment(content, etInput);
-            }
-        });
+        Button btnSendComment = findViewById(R.id.btn_send_comment);
+
+        // 被驳回的帖子禁止评论
+        if (currentPost != null && "未通过".equals(currentPost.getAuditState())) {
+            btnSendComment.setEnabled(false);
+            etInput.setEnabled(false);
+            etInput.setHint("该主题帖无法评论");
+            btnSendComment.setOnClickListener(v ->
+                Toast.makeText(PostDetailActivity.this, "该主题帖无法评论", Toast.LENGTH_SHORT).show());
+        } else {
+            btnSendComment.setOnClickListener(v -> {
+                String content = etInput.getText().toString().trim();
+                if (!content.isEmpty()) {
+                    submitComment(content, etInput);
+                }
+            });
+        }
     }
 
     private void fetchComments() {

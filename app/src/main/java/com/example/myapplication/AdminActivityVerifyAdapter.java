@@ -54,10 +54,8 @@ public class AdminActivityVerifyAdapter extends RecyclerView.Adapter<AdminActivi
                 + " | 招募: " + activity.getRecruitsNumber() + "人"
                 + " | 状态: " + auditState);
 
-        // 只有待审核的活动才能操作
-        boolean isPending = "待审核".equals(auditState);
-        holder.btnViewDetail.setEnabled(isPending);
-        holder.btnViewDetail.setText(isPending ? "查看详情" : "已审核");
+        holder.btnViewDetail.setText("查看详情");
+        holder.btnViewDetail.setEnabled(true);
 
         holder.btnViewDetail.setOnClickListener(v -> {
             if (listener != null) listener.onViewDetail(activity, holder.getAdapterPosition());

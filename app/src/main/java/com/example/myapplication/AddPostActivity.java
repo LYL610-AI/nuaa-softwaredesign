@@ -1,22 +1,36 @@
 package com.example.myapplication;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONObject;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -27,6 +41,10 @@ public class AddPostActivity extends AppCompatActivity {
     private final OkHttpClient client = ApiConfig.getClient();
     private final Gson gson = new Gson();
     private boolean eligible;
+    private Uri selectedImageUri;
+    private ImageView ivPreview;
+    private Button btnSelectImage, btnClearImage;
+    private ActivityResultLauncher<String> imagePickerLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +57,31 @@ public class AddPostActivity extends AppCompatActivity {
         EditText etContent = findViewById(R.id.et_post_input);
         Button btnSend = findViewById(R.id.btn_send_post);
         TextView tvEligibility = findViewById(R.id.tv_post_eligibility);
+        ivPreview = findViewById(R.id.iv_post_preview);
+        btnSelectImage = findViewById(R.id.btn_select_image);
+        btnClearImage = findViewById(R.id.btn_clear_image);
+
+        // 图片选择器
+        imagePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.GetContent(),
+                uri -> {
+                    if (uri != null) {
+                        selectedImageUri = uri;
+                        ivPreview.setImageURI(uri);
+                        ivPreview.setVisibility(View.VISIBLE);
+                        btnClearImage.setVisibility(View.VISIBLE);
+                    }
+                });
+
+        btnSelectImage.setOnClickListener(v ->
+                imagePickerLauncher.launch("image/*"));
+
+        btnClearImage.setOnClickListener(v -> {
+            selectedImageUri = null;
+            ivPreview.setImageURI(null);
+            ivPreview.setVisibility(View.GONE);
+            btnClearImage.setVisibility(View.GONE);
+        });
 
         // 检查是否志愿者
         User currentUser = SessionManager.getCurrentUser();
@@ -74,8 +117,14 @@ public class AddPostActivity extends AppCompatActivity {
             }
 
             btnSend.setEnabled(false);
-            btnSend.setText("验证活动中...");
-            searchActivityAndSubmit(activityName, title, imageUrl, content, btnSend);
+            // 如果选择了本地图片，先上传再提交
+            if (selectedImageUri != null) {
+                btnSend.setText("上传图片中...");
+                uploadImageThenSubmit(activityName, title, imageUrl, content, btnSend);
+            } else {
+                btnSend.setText("验证活动中...");
+                searchActivityAndSubmit(activityName, title, imageUrl, content, btnSend);
+            }
         });
     }
 
@@ -136,6 +185,89 @@ public class AddPostActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    private void uploadImageThenSubmit(String activityName, String title, String imageUrl, String content, Button btnSend) {
+        new Thread(() -> {
+            try {
+                File imageFile = copyUriToFile(selectedImageUri);
+                if (imageFile == null) {
+                    runOnUiThread(() -> {
+                        btnSend.setEnabled(true);
+                        btnSend.setText("提交主题帖（需审核）");
+                        Toast.makeText(AddPostActivity.this, "无法读取图片文件", Toast.LENGTH_SHORT).show();
+                    });
+                    return;
+                }
+
+                RequestBody fileBody = RequestBody.create(MediaType.parse("image/jpeg"), imageFile);
+                MultipartBody body = new MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("file", imageFile.getName(), fileBody)
+                        .build();
+
+                String url = ApiConfig.getBaseUrl() + "/file/upload";
+                Request request = new Request.Builder().url(url).post(body).build();
+                Response response = client.newCall(request).execute();
+
+                String result = response.body() != null ? response.body().string() : null;
+                Log.d("AddPost", "Upload response code=" + response.code() + ", body=" + result);
+                if (result != null && response.isSuccessful()) {
+                    JSONObject res = new JSONObject(result);
+                    if (res.getInt("code") == 200) {
+                        String uploadedUrl = res.getJSONObject("data").getString("url");
+                        imageFile.delete();
+                        final String finalUrl = uploadedUrl;
+                        runOnUiThread(() -> {
+                            btnSend.setText("验证活动中...");
+                            searchActivityAndSubmit(activityName, title, finalUrl, content, btnSend);
+                        });
+                        return;
+                    }
+                }
+                imageFile.delete();
+                final String errDetail = result != null ? result : "HTTP " + response.code();
+                Log.e("AddPost", "Upload failed: " + errDetail);
+                runOnUiThread(() -> {
+                    btnSend.setEnabled(true);
+                    btnSend.setText("提交主题帖（需审核）");
+                    Toast.makeText(AddPostActivity.this, "图片上传失败: " + errDetail, Toast.LENGTH_LONG).show();
+                });
+            } catch (Exception e) {
+                Log.e("AddPost", "Image upload error", e);
+                runOnUiThread(() -> {
+                    btnSend.setEnabled(true);
+                    btnSend.setText("提交主题帖（需审核）");
+                    Toast.makeText(AddPostActivity.this, "图片上传失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+            }
+        }).start();
+    }
+
+    private File copyUriToFile(Uri uri) throws IOException {
+        InputStream in = getContentResolver().openInputStream(uri);
+        if (in == null) return null;
+        Bitmap bitmap = BitmapFactory.decodeStream(in);
+        in.close();
+        if (bitmap == null) return null;
+        // 压缩到最大宽度800px
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+        if (w > 800) {
+            float ratio = 800f / w;
+            w = 800;
+            h = (int) (h * ratio);
+            bitmap = Bitmap.createScaledBitmap(bitmap, w, h, true);
+        }
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, bos);
+        File file = new File(getCacheDir(), "upload_" + System.currentTimeMillis() + ".jpg");
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.write(bos.toByteArray());
+        fos.close();
+        bos.close();
+        if (!bitmap.isRecycled()) bitmap.recycle();
+        return file;
     }
 
     private void searchActivityAndSubmit(String activityName, String title, String imageUrl, String content, Button btnSend) {

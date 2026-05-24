@@ -75,8 +75,9 @@ public class AdminPostVerifyAdapter extends RecyclerView.Adapter<AdminPostVerify
         holder.btnApprove.setEnabled(isPending);
         holder.btnReject.setEnabled(isPending);
         if (!isPending) {
-            holder.btnApprove.setText("已审核");
-            holder.btnReject.setText("已审核");
+            String label = "未通过".equals(auditState) ? "已驳回" : "已" + auditState;
+            holder.btnApprove.setText(label);
+            holder.btnReject.setText(label);
         } else {
             holder.btnApprove.setText("通过");
             holder.btnReject.setText("驳回");

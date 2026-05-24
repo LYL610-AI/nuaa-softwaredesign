@@ -66,8 +66,9 @@ public class AdminSummaryVerifyAdapter extends RecyclerView.Adapter<AdminSummary
         holder.btnApprove.setEnabled(isPending);
         holder.btnReject.setEnabled(isPending);
         if (!isPending) {
-            holder.btnApprove.setText("已审核");
-            holder.btnReject.setText("已审核");
+            String label = "未通过".equals(stateText) ? "已驳回" : "已" + stateText;
+            holder.btnApprove.setText(label);
+            holder.btnReject.setText(label);
         } else {
             holder.btnApprove.setText("通过");
             holder.btnReject.setText("驳回");

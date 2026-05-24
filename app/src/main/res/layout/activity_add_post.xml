@@ -90,19 +90,60 @@
                     android:layout_marginBottom="20dp"
                     android:singleLine="true"/>
 
-                <!-- 图片链接 -->
+                <!-- 图片上传 -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="图片链接（选填）"
+                    android:text="图片（选填）"
                     android:textColor="@color/text_main"
                     android:textStyle="bold"
                     android:layout_marginBottom="8dp"/>
+
+                <ImageView
+                    android:id="@+id/iv_post_preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="180dp"
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:visibility="gone"
+                    android:layout_marginBottom="10dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp">
+
+                    <Button
+                        android:id="@+id/btn_select_image"
+                        android:layout_width="0dp"
+                        android:layout_height="42dp"
+                        android:layout_weight="1"
+                        android:text="选择图片"
+                        android:textSize="14sp"
+                        android:stateListAnimator="@null"
+                        android:background="@drawable/bg_button_primary"
+                        android:textColor="@color/bg_white"
+                        android:layout_marginEnd="8dp"/>
+
+                    <Button
+                        android:id="@+id/btn_clear_image"
+                        android:layout_width="0dp"
+                        android:layout_height="42dp"
+                        android:layout_weight="1"
+                        android:text="清除图片"
+                        android:textSize="14sp"
+                        android:stateListAnimator="@null"
+                        android:background="@drawable/bg_button_danger"
+                        android:textColor="@color/bg_white"
+                        android:visibility="gone"/>
+                </LinearLayout>
+
                 <EditText
                     android:id="@+id/et_post_image_url"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:hint="请输入图片网址（可选）"
+                    android:hint="或输入图片网址"
                     android:textColorHint="@color/text_hint"
                     android:textColor="@color/text_main"
                     android:inputType="textUri"

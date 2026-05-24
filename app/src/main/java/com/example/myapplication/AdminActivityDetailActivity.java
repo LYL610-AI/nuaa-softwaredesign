@@ -70,6 +70,16 @@ public class AdminActivityDetailActivity extends AppCompatActivity {
 
         btnApprove.setOnClickListener(v -> auditActivity("通过"));
         btnReject.setOnClickListener(v -> auditActivity("未通过"));
+
+        // 已审核通过或已驳回的活动不允许再次操作
+        String state = currentActivity.getAuditState();
+        if ("通过".equals(state) || "未通过".equals(state)) {
+            btnApprove.setEnabled(false);
+            btnReject.setEnabled(false);
+            String label = "通过".equals(state) ? "已通过" : "已驳回";
+            btnApprove.setText(label);
+            btnReject.setText(label);
+        }
     }
 
     private void auditActivity(String auditResult) {

@@ -33,7 +33,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView user, content, time, like;
+        TextView user, content, time, like, auditState;
         ImageView thumbnail;
         Button btnDelete;
 
@@ -45,6 +45,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             like = view.findViewById(R.id.tv_post_like);
             thumbnail = view.findViewById(R.id.iv_post_thumbnail);
             btnDelete = view.findViewById(R.id.btn_delete_post);
+            auditState = view.findViewById(R.id.tv_post_audit_state);
         }
     }
 
@@ -63,6 +64,18 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         holder.content.setText(post.getTitle() + "\n" + post.getContent());
         holder.time.setText(post.getPublishTime());
         holder.like.setVisibility(View.GONE);
+
+        // 审核状态标签
+        String state = post.getAuditState();
+        if (state == null) state = "待审核";
+        holder.auditState.setText(state);
+        int stateColor;
+        switch (state) {
+            case "通过": stateColor = 0xFF4CAF50; break;
+            case "未通过": stateColor = 0xFFF44336; break;
+            default: stateColor = 0xFFFF9800; break;
+        }
+        holder.auditState.setTextColor(stateColor);
 
         String imageUrl = ApiConfig.getFullImageUrl(post.getPictureUrl());
         if (imageUrl != null && !imageUrl.isEmpty()) {

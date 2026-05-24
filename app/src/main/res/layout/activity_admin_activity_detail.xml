@@ -48,7 +48,8 @@
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@color/text_main"
-            android:background="@drawable/bg_edittext_rounded"
+            android:background="@drawable/bg_button_danger"
+            app:backgroundTint="@null"
             android:stateListAnimator="@null"
             android:layout_marginEnd="12dp"/>
 
@@ -60,8 +61,9 @@
             android:text="通过"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="@color/bg_white"
+            android:textColor="@color/text_main"
             android:background="@drawable/bg_button_success"
+            app:backgroundTint="@null"
             android:stateListAnimator="@null"/>
     </LinearLayout>
 

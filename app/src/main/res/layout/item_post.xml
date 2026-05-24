@@ -98,6 +98,19 @@
                 android:textSize="13sp"
                 android:textColor="@color/text_sub" />
 
+            <!-- 审核状态 -->
+            <TextView
+                android:id="@+id/tv_post_audit_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toStartOf="@id/btn_delete_post"
+                android:layout_centerVertical="true"
+                android:text="待审核"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#FF9800"
+                android:layout_marginEnd="8dp"/>
+
             <!-- 删除按钮（仅在自己的帖子列表中显示） -->
             <Button
                 android:id="@+id/btn_delete_post"
