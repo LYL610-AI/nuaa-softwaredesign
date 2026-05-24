@@ -1,8 +1,5 @@
 package com.example.myapplication;
 
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,7 +17,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONObject;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -247,26 +243,15 @@ public class AddPostActivity extends AppCompatActivity {
     private File copyUriToFile(Uri uri) throws IOException {
         InputStream in = getContentResolver().openInputStream(uri);
         if (in == null) return null;
-        Bitmap bitmap = BitmapFactory.decodeStream(in);
-        in.close();
-        if (bitmap == null) return null;
-        // 压缩到最大宽度800px
-        int w = bitmap.getWidth();
-        int h = bitmap.getHeight();
-        if (w > 800) {
-            float ratio = 800f / w;
-            w = 800;
-            h = (int) (h * ratio);
-            bitmap = Bitmap.createScaledBitmap(bitmap, w, h, true);
-        }
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, bos);
         File file = new File(getCacheDir(), "upload_" + System.currentTimeMillis() + ".jpg");
         FileOutputStream fos = new FileOutputStream(file);
-        fos.write(bos.toByteArray());
+        byte[] buf = new byte[8192];
+        int len;
+        while ((len = in.read(buf)) > 0) {
+            fos.write(buf, 0, len);
+        }
         fos.close();
-        bos.close();
-        if (!bitmap.isRecycled()) bitmap.recycle();
+        in.close();
         return file;
     }
 

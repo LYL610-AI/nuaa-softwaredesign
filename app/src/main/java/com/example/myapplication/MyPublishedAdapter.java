@@ -76,12 +76,12 @@ public class MyPublishedAdapter extends RecyclerView.Adapter<MyPublishedAdapter.
 
         // 总结按钮：审核已通过、非结束、总结未被审核通过时显示
         holder.btnSummary.setVisibility((!isPendingAudit && !isRejected && !isEnd && !summaryApproved) ? View.VISIBLE : View.GONE);
-        // 编辑/删除按钮：待审核、未通过或招募中时显示
-        int editDeleteVis = (isPendingAudit || isRejected || "招募中".equals(state)) ? View.VISIBLE : View.GONE;
-        holder.btnEdit.setVisibility(editDeleteVis);
-        holder.btnDelete.setVisibility(editDeleteVis);
-        // 开始活动按钮：仅招募中时显示
-        holder.btnStart.setVisibility("招募中".equals(state) ? View.VISIBLE : View.GONE);
+        // 编辑按钮：仅待审核时显示
+        holder.btnEdit.setVisibility(isPendingAudit ? View.VISIBLE : View.GONE);
+        // 删除按钮：待审核、未通过或招募中时显示
+        holder.btnDelete.setVisibility((isPendingAudit || isRejected || "招募中".equals(state)) ? View.VISIBLE : View.GONE);
+        // 开始活动按钮：仅招募中且非待审核时显示
+        holder.btnStart.setVisibility(("招募中".equals(state) && !isPendingAudit) ? View.VISIBLE : View.GONE);
 
         holder.btnStart.setOnClickListener(v -> {
             if (actionListener != null) {

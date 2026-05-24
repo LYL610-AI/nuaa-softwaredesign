@@ -50,6 +50,10 @@ public class MyPublishedActivity extends AppCompatActivity {
         adapter.setOnActionListener(new MyPublishedAdapter.OnActionListener() {
             @Override
             public void onEdit(TeachingActivity activity, int position) {
+                if (!"待审核".equals(activity.getAuditState())) {
+                    Toast.makeText(MyPublishedActivity.this, "仅待审核的活动可以编辑", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Intent intent = new Intent(MyPublishedActivity.this, EditActivityActivity.class);
                 intent.putExtra("activity_data", activity);
                 startActivity(intent);
@@ -87,6 +91,12 @@ public class MyPublishedActivity extends AppCompatActivity {
         fetchMyPublished();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fetchMyPublished();
+    }
+
     private void fetchMyPublished() {
         User currentUser = SessionManager.getCurrentUser();
         if (currentUser == null || currentUser.getUserId() == null) {
@@ -94,45 +104,61 @@ public class MyPublishedActivity extends AppCompatActivity {
             return;
         }
 
-        String url = ApiConfig.getBaseUrl() + "/activity/list";
+        final String userId = currentUser.getUserId();
+        final List<TeachingActivity> allActivities = new ArrayList<>();
+        final java.util.concurrent.atomic.AtomicInteger pending = new java.util.concurrent.atomic.AtomicInteger(3);
 
-        Request request = new Request.Builder().url(url).get().build();
+        for (String state : new String[]{"0", "1", "2"}) {
+            String url = ApiConfig.getBaseUrl() + "/activity/list?auditState=" + state;
+            Request request = new Request.Builder().url(url).get().build();
 
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                runOnUiThread(() ->
-                    Toast.makeText(MyPublishedActivity.this, "网络连接失败", Toast.LENGTH_SHORT).show());
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    try {
-                        String jsonResult = response.body().string();
-                        JSONObject jsonObject = new JSONObject(jsonResult);
-                        if (jsonObject.getInt("code") == 200) {
-                            String dataArrayString = jsonObject.getJSONObject("data").getJSONArray("list").toString();
-                            List<TeachingActivity> serverData = gson.fromJson(dataArrayString,
-                                    new TypeToken<List<TeachingActivity>>(){}.getType());
-                            // 过滤出当前用户发布的活动
-                            List<TeachingActivity> myActivities = new ArrayList<>();
-                            for (TeachingActivity a : serverData) {
-                                if (currentUser.getUserId().equals(a.getUserId())) {
-                                    myActivities.add(a);
-                                }
-                            }
-                            runOnUiThread(() -> {
-                                dataList.clear();
-                                dataList.addAll(myActivities);
-                                adapter.notifyDataSetChanged();
-                            });
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    if (pending.decrementAndGet() == 0) {
+                        updateMyPublishedList(allActivities, userId);
                     }
                 }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        try {
+                            String jsonResult = response.body().string();
+                            JSONObject jsonObject = new JSONObject(jsonResult);
+                            if (jsonObject.getInt("code") == 200) {
+                                String dataArrayString = jsonObject.getJSONObject("data").getJSONArray("list").toString();
+                                List<TeachingActivity> serverData = gson.fromJson(dataArrayString,
+                                        new TypeToken<List<TeachingActivity>>(){}.getType());
+                                synchronized (allActivities) {
+                                    allActivities.addAll(serverData);
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (pending.decrementAndGet() == 0) {
+                        updateMyPublishedList(allActivities, userId);
+                    }
+                }
+            });
+        }
+    }
+
+    private void updateMyPublishedList(List<TeachingActivity> allActivities, String userId) {
+        List<TeachingActivity> myActivities = new ArrayList<>();
+        synchronized (allActivities) {
+            for (TeachingActivity a : allActivities) {
+                if (userId.equals(a.getUserId())) {
+                    myActivities.add(a);
+                }
             }
+        }
+        runOnUiThread(() -> {
+            dataList.clear();
+            dataList.addAll(myActivities);
+            adapter.notifyDataSetChanged();
         });
     }
 
