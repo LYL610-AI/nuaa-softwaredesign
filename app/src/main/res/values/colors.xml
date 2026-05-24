@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="primary_blue">#2BA0F3</color>    <!-- 品牌志愿蓝 -->
+    <color name="primary_blue_dark">#1E88E5</color>
+
+    <color name="bg_page_gray">#F4F6F9</color>    <!-- 页面浅灰背景 -->
+    <color name="bg_white">#FFFFFF</color>        <!-- 卡片纯白背景 -->
+
+    <color name="text_main">#333333</color>       <!-- 主标题、正文黑色 -->
+    <color name="text_sub">#888888</color>        <!-- 副标题、时间灰色 -->
+    <color name="text_hint">#CCCCCC</color>       <!-- 输入框提示文字颜色 -->
+
+    <color name="divider_gray">#EEEEEE</color>    <!-- 分割线 -->
+</resources>

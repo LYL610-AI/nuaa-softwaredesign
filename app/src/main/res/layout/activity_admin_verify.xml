@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_app"> <!-- 统一浅灰背景 -->
+
+    <!-- 🌟 1. 顶部标题栏 -->
+    <LinearLayout
+        android:id="@+id/layout_admin_top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="@color/bg_white"
+        android:elevation="1dp"
+        android:paddingVertical="16dp">
+
+        <TextView
+            android:id="@+id/tv_admin_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="管理系统功能"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_main"
+            android:gravity="center"/>
+    </LinearLayout>
+
+    <!-- 🌟 2. 三大核心模块 Tabs (完美平替原型里的左侧菜单) -->
+    <LinearLayout
+        android:id="@+id/layout_admin_tabs"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@id/layout_admin_top_bar"
+        android:background="@color/bg_white"
+        android:elevation="3dp"
+        android:orientation="horizontal">
+
+        <!-- 账号管理 (默认高亮) -->
+        <Button
+            android:id="@+id/btn_tab_users"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="账号管理"
+            android:textSize="14sp"
+            android:textColor="@color/primary_blue"
+            android:textStyle="bold"
+            android:background="@android:color/transparent"
+            android:paddingHorizontal="2dp"
+            android:paddingVertical="0dp"
+            android:minHeight="0dp"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:stateListAnimator="@null"/>
+
+        <View android:layout_width="1dp" android:layout_height="24dp" android:layout_gravity="center_vertical" android:background="@color/divider_gray"/>
+
+        <!-- 审核志愿活动 -->
+        <Button
+            android:id="@+id/btn_tab_activities"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="审核活动"
+            android:textSize="14sp"
+            android:textColor="@color/text_main"
+            android:background="@android:color/transparent"
+            android:paddingHorizontal="2dp"
+            android:paddingVertical="0dp"
+            android:minHeight="0dp"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:stateListAnimator="@null"/>
+
+        <View android:layout_width="1dp" android:layout_height="24dp" android:layout_gravity="center_vertical" android:background="@color/divider_gray"/>
+
+        <!-- 审核主题帖 -->
+        <Button
+            android:id="@+id/btn_tab_posts"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="审核帖子"
+            android:textSize="14sp"
+            android:textColor="@color/text_main"
+            android:background="@android:color/transparent"
+            android:paddingHorizontal="2dp"
+            android:paddingVertical="0dp"
+            android:minHeight="0dp"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:stateListAnimator="@null"/>
+
+        <View android:layout_width="1dp" android:layout_height="24dp" android:layout_gravity="center_vertical" android:background="@color/divider_gray"/>
+
+        <!-- 审核总结报告 -->
+        <Button
+            android:id="@+id/btn_tab_summaries"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="审核总结"
+            android:textSize="14sp"
+            android:textColor="@color/text_main"
+            android:background="@android:color/transparent"
+            android:paddingHorizontal="2dp"
+            android:paddingVertical="0dp"
+            android:minHeight="0dp"
+            android:gravity="center"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:stateListAnimator="@null"/>
+    </LinearLayout>
+
+    <!-- 🌟 3. 搜索栏 (根据设计文档还原) -->
+    <RelativeLayout
+        android:id="@+id/layout_admin_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layout_admin_tabs"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp">
+
+        <EditText
+            android:id="@+id/et_admin_search"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:background="@drawable/bg_edittext_rounded"
+            android:hint="输入 UID、手机号或标题搜索"
+            android:textColorHint="@color/text_hint"
+            android:textColor="@color/text_main"
+            android:textSize="14sp"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
+            android:drawableStart="@android:drawable/ic_menu_search"
+            android:drawablePadding="8dp"
+            android:singleLine="true"/>
+    </RelativeLayout>
+
+    <!-- 🌟 4. 底部退出登录按钮 -->
+    <Button
+        android:id="@+id/btn_admin_logout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/bg_button_danger"
+        android:text="退出系统"
+        android:textColor="@color/bg_white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:stateListAnimator="@null" />
+
+    <!-- 🌟 5. 中间列表区：复用你原来的 ID -->
+    <!-- 当你点击顶部的三个 Tab 时，在 Java 中更新这个 RecyclerView 的 Adapter 即可 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_pending_schools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layout_admin_search"
+        android:layout_above="@id/btn_admin_logout"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="12dp"
+        android:clipToPadding="false"
+        android:paddingBottom="10dp"/>
+
+</RelativeLayout>

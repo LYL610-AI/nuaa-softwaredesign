@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_app"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="发布主题帖"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="5dp"
+            android:textColor="@color/text_main"/>
+
+        <TextView
+            android:id="@+id/tv_post_eligibility"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="12sp"
+            android:textColor="@color/text_hint"
+            android:layout_gravity="center"
+            android:layout_marginBottom="20dp"/>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/bg_white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- 支教活动名称 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="支教活动名称"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_post_activity_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="请输入您参与过的支教活动名称"
+                    android:textColorHint="@color/text_hint"
+                    android:textColor="@color/text_main"
+                    android:maxLength="100"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:layout_marginBottom="20dp"
+                    android:singleLine="true"/>
+
+                <!-- 帖子标题 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="帖子标题"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_post_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="起一个吸引人的标题吧"
+                    android:textColorHint="@color/text_hint"
+                    android:textColor="@color/text_main"
+                    android:maxLength="100"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:layout_marginBottom="20dp"
+                    android:singleLine="true"/>
+
+                <!-- 图片链接 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="图片链接（选填）"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_post_image_url"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="请输入图片网址（可选）"
+                    android:textColorHint="@color/text_hint"
+                    android:textColor="@color/text_main"
+                    android:inputType="textUri"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:layout_marginBottom="20dp"
+                    android:singleLine="true"/>
+
+                <!-- 正文内容 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="正文内容"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_post_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:hint="分享你的支教感悟、照片背后的故事..."
+                    android:gravity="top"
+                    android:textColorHint="@color/text_hint"
+                    android:textColor="@color/text_main"
+                    android:padding="15dp"
+                    android:background="@drawable/bg_edittext_rounded" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <Button
+            android:id="@+id/btn_send_post"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="提交主题帖（需审核）"
+            android:layout_marginTop="35dp"
+            android:textColor="@color/bg_white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:stateListAnimator="@null"
+            android:background="@drawable/bg_button_primary" />
+
+    </LinearLayout>
+</ScrollView>

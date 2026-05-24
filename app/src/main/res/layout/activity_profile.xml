@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_app">
+
+    <LinearLayout
+        android:id="@+id/layout_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="@color/bg_white"
+        android:elevation="3dp"
+        android:paddingVertical="16dp"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="个人中心"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_main" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/bottom_navigation_bar"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:background="@color/bg_white"
+        android:elevation="8dp">
+
+        <Button
+            android:id="@+id/nav_home"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="首页"
+            android:textSize="12sp"
+            android:textColor="@color/text_main"
+            android:background="@android:color/transparent"
+            android:drawableTop="@android:drawable/ic_menu_compass"
+            android:paddingTop="10dp"
+            android:paddingBottom="6dp"
+            android:stateListAnimator="@null"/>
+
+        <Button
+            android:id="@+id/nav_posts"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="主题帖"
+            android:textSize="12sp"
+            android:textColor="@color/text_main"
+            android:background="@android:color/transparent"
+            android:drawableTop="@android:drawable/ic_menu_agenda"
+            android:paddingTop="10dp"
+            android:paddingBottom="6dp"
+            android:stateListAnimator="@null"/>
+
+        <Button
+            android:id="@+id/nav_profile"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="我的"
+            android:textSize="12sp"
+            android:textColor="@color/primary_blue"
+            android:background="@android:color/transparent"
+            android:drawableTop="@android:drawable/ic_menu_info_details"
+            android:paddingTop="10dp"
+            android:paddingBottom="6dp"
+            android:stateListAnimator="@null"/>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layout_header"
+        android:layout_above="@id/bottom_navigation_bar"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="15dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/bg_white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="20dp"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@drawable/bg_button_primary"
+                        android:text="V"
+                        android:textColor="@color/bg_white"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:layout_marginEnd="16dp"/>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_profile_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="加载中..."
+                            android:textSize="22sp"
+                            android:textColor="@color/text_main"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_profile_type"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="角色：志愿者"
+                            android:textColor="@color/text_sub"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="我的服务"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_main"
+                android:layout_marginBottom="15dp"
+                android:paddingStart="5dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="30dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="15dp">
+
+                    <Button android:id="@+id/btn_my_applied_activities" android:layout_width="0dp" android:layout_height="80dp" android:layout_weight="1" android:text="已报名活动" android:textSize="13sp" android:background="@android:color/transparent" android:drawableTop="@android:drawable/ic_menu_myplaces" android:textColor="@color/text_main" android:stateListAnimator="@null"/>
+                    <Button android:id="@+id/btn_my_posts" android:layout_width="0dp" android:layout_height="80dp" android:layout_weight="1" android:text="我的主题帖" android:textSize="13sp" android:background="@android:color/transparent" android:drawableTop="@android:drawable/ic_menu_agenda" android:textColor="@color/text_main" android:stateListAnimator="@null"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_school_actions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <Button android:id="@+id/btn_my_published_activities" android:layout_width="0dp" android:layout_height="80dp" android:layout_weight="1" android:text="已发布活动" android:textSize="13sp" android:background="@android:color/transparent" android:drawableTop="@android:drawable/ic_menu_send" android:textColor="@color/text_main" android:stateListAnimator="@null"/>
+                    <Button android:id="@+id/btn_audit_my_registrations" android:layout_width="0dp" android:layout_height="80dp" android:layout_weight="1" android:text="审核报名" android:textSize="13sp" android:background="@android:color/transparent" android:drawableTop="@android:drawable/ic_menu_edit" android:textColor="@color/text_main" android:stateListAnimator="@null"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_edit_profile"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="12dp"
+                android:text="编辑个人信息"
+                android:textColor="@color/bg_white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:stateListAnimator="@null"
+                android:background="@drawable/bg_button_primary" />
+
+            <Button
+                android:id="@+id/btn_admin_users"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="12dp"
+                android:text="用户管理"
+                android:textColor="@color/bg_white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:stateListAnimator="@null"
+                android:background="@drawable/bg_button_primary"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/btn_volunteer_logout"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="10dp"
+                android:text="退出登录"
+                android:textColor="@color/bg_white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:stateListAnimator="@null"
+                android:background="@drawable/bg_button_danger" />
+
+            <Button android:id="@+id/btn_my_registrations" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+            <Button android:id="@+id/btn_profile_community" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

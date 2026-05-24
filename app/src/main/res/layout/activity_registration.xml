@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_app"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- 页面大标题 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="填写报名信息"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_main"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="25dp" />
+
+        <!-- 表单卡片区 -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="15dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/bg_white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="25dp">
+
+                <!-- 姓名 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="姓名"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_reg_realname"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="请输入真实姓名"
+                    android:textColorHint="@color/text_hint"
+                    android:textColor="@color/text_main"
+                    android:maxLength="50"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:layout_marginBottom="20dp"
+                    android:singleLine="true"/>
+
+                <!-- 身份证号 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="身份证号"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_reg_idcard"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="用于身份验证和购买保险"
+                    android:textColorHint="@color/text_hint"
+                    android:textColor="@color/text_main"
+                    android:maxLength="18"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:layout_marginBottom="20dp"
+                    android:singleLine="true"/>
+
+                <!-- 手机号码 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="手机号码"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_reg_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="请输入手机号码"
+                    android:textColorHint="@color/text_hint"
+                    android:textColor="@color/text_main"
+                    android:inputType="phone"
+                    android:maxLength="11"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:layout_marginBottom="20dp"
+                    android:singleLine="true"/>
+
+                <!-- 性别 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="性别"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <RadioGroup
+                    android:id="@+id/rg_reg_gender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="20dp">
+                    <RadioButton
+                        android:id="@+id/rb_male"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="男"
+                        android:textColor="@color/text_main"
+                        android:layout_marginEnd="40dp"/>
+                    <RadioButton
+                        android:id="@+id/rb_female"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="女"
+                        android:textColor="@color/text_main"/>
+                </RadioGroup>
+
+                <!-- 学历 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="受教育情况"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_reg_edu"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="如：本科、硕士等"
+                    android:textColorHint="@color/text_hint"
+                    android:textColor="@color/text_main"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:layout_marginBottom="20dp"
+                    android:singleLine="true"/>
+
+                <!-- 学校/工作单位 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="学校/工作单位"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_reg_health"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="如：南京大学、自由职业等"
+                    android:textColorHint="@color/text_hint"
+                    android:textColor="@color/text_main"
+                    android:maxLength="200"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:layout_marginBottom="20dp"
+                    android:singleLine="true"/>
+
+                <!-- 自我介绍 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="自我介绍"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_reg_intro"
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:hint="谈谈你为什么想参加这次支教，以及你有哪些特长..."
+                    android:textColorHint="@color/text_hint"
+                    android:textColor="@color/text_main"
+                    android:gravity="top"
+                    android:padding="15dp"
+                    android:background="@drawable/bg_edittext_rounded"/>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- 提交按钮 -->
+        <Button
+            android:id="@+id/btn_reg_submit"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="35dp"
+            android:layout_marginBottom="20dp"
+            android:text="提交报名表"
+            android:textColor="@color/bg_white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:stateListAnimator="@null"
+            android:background="@drawable/bg_button_primary" />
+
+    </LinearLayout>
+</ScrollView>

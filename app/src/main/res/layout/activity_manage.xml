@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_app"> <!-- 统一浅灰背景 -->
+
+    <!-- 🌟 1. 顶部悬浮标题栏（改为 RelativeLayout 才能实现左边按钮+中间标题） -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_white"
+        android:elevation="3dp"
+        android:paddingVertical="12dp"
+        android:paddingHorizontal="16dp">
+
+        <!-- 左上角返回首页按钮 -->
+        <TextView
+            android:id="@+id/btn_back_to_home"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:text="‹ 首页"
+            android:textSize="16sp"
+            android:textColor="@color/primary_blue"
+            android:textStyle="bold"
+            android:paddingVertical="8dp"
+            android:paddingEnd="16dp"
+            android:background="?attr/selectableItemBackground" />
+
+        <!-- 居中标题 -->
+        <TextView
+            android:id="@+id/tv_manage_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="管理报名申请"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_main"/>
+    </RelativeLayout>
+
+    <!-- 🌟 2. 名单列表区 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_manage_applies"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="8dp"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="20dp"
+        android:clipToPadding="false" />
+
+</LinearLayout>

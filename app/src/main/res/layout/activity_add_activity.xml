@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_app">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="发布新支教项目"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="25dp"
+            android:textColor="@color/text_main"/>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/bg_white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- 项目标题 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="项目标题"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_add_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="请输入支教项目名称"
+                    android:textColorHint="@color/text_hint"
+                    android:layout_marginBottom="20dp"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:maxLines="1" android:singleLine="true"/>
+
+                <!-- 支教地址 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="支教地址"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_add_location"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="例如：四川省凉山州昭觉县"
+                    android:textColorHint="@color/text_hint"
+                    android:layout_marginBottom="20dp"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:maxLines="1" android:singleLine="true"/>
+
+                <!-- 支教开始时间 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="支教开始日期"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_add_start_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="格式：2024-07-01"
+                    android:textColorHint="@color/text_hint"
+                    android:layout_marginBottom="20dp"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:maxLines="1" android:singleLine="true"/>
+
+                <!-- 支教结束时间 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="支教结束日期"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_add_end_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="格式：2024-08-15"
+                    android:textColorHint="@color/text_hint"
+                    android:layout_marginBottom="20dp"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:maxLines="1" android:singleLine="true"/>
+
+                <!-- 招募人数 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="招募人数"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_add_num"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="请输入所需志愿者人数"
+                    android:inputType="number"
+                    android:textColorHint="@color/text_hint"
+                    android:layout_marginBottom="20dp"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:maxLines="1" android:singleLine="true"/>
+
+                <!-- 活动详情 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="活动详情"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_add_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:hint="请详细描述以下内容：\n1. 支教教学内容和课程安排\n2. 志愿者要求（学历、年龄、经验等）\n3. 报名截止时间\n4. 发起人联系方式（手机号）\n5. 温馨提示（食宿、交通、注意事项等）"
+                    android:gravity="top"
+                    android:textColorHint="@color/text_hint"
+                    android:padding="15dp"
+                    android:background="@drawable/bg_edittext_rounded"/>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <Button
+            android:id="@+id/btn_add_submit"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="35dp"
+            android:layout_marginBottom="20dp"
+            android:text="提交发布（需管理员审核）"
+            android:textColor="@color/bg_white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:stateListAnimator="@null"
+            android:background="@drawable/bg_button_primary" />
+
+    </LinearLayout>
+</ScrollView>

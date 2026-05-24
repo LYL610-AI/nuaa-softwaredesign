@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_app"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="编辑个人信息"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_main"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="5dp" />
+
+        <TextView
+            android:id="@+id/tv_edit_target_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="13sp"
+            android:textColor="@color/text_sub"
+            android:layout_gravity="center"
+            android:layout_marginBottom="20dp"
+            android:visibility="gone"/>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="15dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/bg_white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="25dp">
+
+                <!-- 手机号 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="手机号码"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_edit_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="请输入11位手机号码"
+                    android:textColorHint="@color/text_hint"
+                    android:textColor="@color/text_main"
+                    android:inputType="phone"
+                    android:maxLength="11"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:layout_marginBottom="20dp"
+                    android:singleLine="true"/>
+
+                <!-- 旧密码 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="旧密码"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_edit_old_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="如需修改密码，请先输入旧密码"
+                    android:textColorHint="@color/text_hint"
+                    android:textColor="@color/text_main"
+                    android:inputType="textPassword"
+                    android:maxLength="20"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:layout_marginBottom="20dp"
+                    android:singleLine="true"/>
+
+                <!-- 新密码 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="新密码"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_edit_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="留空则不修改密码"
+                    android:textColorHint="@color/text_hint"
+                    android:textColor="@color/text_main"
+                    android:inputType="textPassword"
+                    android:maxLength="20"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:layout_marginBottom="20dp"
+                    android:singleLine="true"/>
+
+                <!-- 确认密码 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="确认密码"
+                    android:textColor="@color/text_main"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+                <EditText
+                    android:id="@+id/et_edit_password_confirm"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="再次输入新密码"
+                    android:textColorHint="@color/text_hint"
+                    android:textColor="@color/text_main"
+                    android:inputType="textPassword"
+                    android:maxLength="20"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:layout_marginBottom="20dp"
+                    android:singleLine="true"/>
+
+                <!-- 姓名 (仅志愿者可见) -->
+                <LinearLayout
+                    android:id="@+id/layout_edit_realname"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="真实姓名"
+                        android:textColor="@color/text_main"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"/>
+                    <EditText
+                        android:id="@+id/et_edit_realname"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:hint="请输入真实姓名"
+                        android:textColorHint="@color/text_hint"
+                        android:textColor="@color/text_main"
+                        android:inputType="textPersonName"
+                        android:background="@drawable/bg_edittext_rounded"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="15dp"
+                        android:layout_marginBottom="20dp"
+                        android:singleLine="true"/>
+                </LinearLayout>
+
+                <!-- 身份证号 (仅志愿者可见) -->
+                <LinearLayout
+                    android:id="@+id/layout_edit_identity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="身份证号"
+                        android:textColor="@color/text_main"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"/>
+                    <EditText
+                        android:id="@+id/et_edit_identity"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:hint="请输入18位身份证号"
+                        android:textColorHint="@color/text_hint"
+                        android:textColor="@color/text_main"
+                        android:maxLength="18"
+                        android:background="@drawable/bg_edittext_rounded"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="15dp"
+                        android:layout_marginBottom="20dp"
+                        android:singleLine="true"/>
+                </LinearLayout>
+
+                <!-- 性别 (仅志愿者可见) -->
+                <LinearLayout
+                    android:id="@+id/layout_edit_gender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="性别"
+                        android:textColor="@color/text_main"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"/>
+                    <RadioGroup
+                        android:id="@+id/rg_edit_gender"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="20dp">
+                        <RadioButton
+                            android:id="@+id/rb_edit_male"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="男"
+                            android:textColor="@color/text_main"
+                            android:layout_marginEnd="40dp"/>
+                        <RadioButton
+                            android:id="@+id/rb_edit_female"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="女"
+                            android:textColor="@color/text_main"/>
+                    </RadioGroup>
+                </LinearLayout>
+
+                <!-- 学历 (仅志愿者可见) -->
+                <LinearLayout
+                    android:id="@+id/layout_edit_edu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="受教育情况"
+                        android:textColor="@color/text_main"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"/>
+                    <EditText
+                        android:id="@+id/et_edit_edu"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:hint="如：本科、硕士等"
+                        android:textColorHint="@color/text_hint"
+                        android:textColor="@color/text_main"
+                        android:background="@drawable/bg_edittext_rounded"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="15dp"
+                        android:layout_marginBottom="20dp"
+                        android:singleLine="true"/>
+                </LinearLayout>
+
+                <!-- 学校名称 (仅学校可见) -->
+                <LinearLayout
+                    android:id="@+id/layout_edit_school_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="学校名称"
+                        android:textColor="@color/text_main"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"/>
+                    <EditText
+                        android:id="@+id/et_edit_school_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:textColorHint="@color/text_hint"
+                        android:textColor="@color/text_main"
+                        android:background="@drawable/bg_edittext_rounded"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="15dp"
+                        android:layout_marginBottom="20dp"
+                        android:singleLine="true"/>
+                </LinearLayout>
+
+                <!-- 学校地址 (仅学校可见) -->
+                <LinearLayout
+                    android:id="@+id/layout_edit_school_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="学校地址"
+                        android:textColor="@color/text_main"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"/>
+                    <EditText
+                        android:id="@+id/et_edit_school_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:textColorHint="@color/text_hint"
+                        android:textColor="@color/text_main"
+                        android:background="@drawable/bg_edittext_rounded"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="15dp"
+                        android:layout_marginBottom="20dp"
+                        android:singleLine="true"/>
+                </LinearLayout>
+
+                <!-- 学校类型 (仅学校可见) -->
+                <LinearLayout
+                    android:id="@+id/layout_edit_school_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="学校类型"
+                        android:textColor="@color/text_main"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"/>
+                    <EditText
+                        android:id="@+id/et_edit_school_type"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:hint="如：小学、初中、高中"
+                        android:textColorHint="@color/text_hint"
+                        android:textColor="@color/text_main"
+                        android:background="@drawable/bg_edittext_rounded"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="15dp"
+                        android:layout_marginBottom="20dp"
+                        android:singleLine="true"/>
+                </LinearLayout>
+
+                <!-- 办学许可证 (仅学校可见) -->
+                <LinearLayout
+                    android:id="@+id/layout_edit_school_license"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="办学许可证"
+                        android:textColor="@color/text_main"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"/>
+                    <EditText
+                        android:id="@+id/et_edit_school_license"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:textColorHint="@color/text_hint"
+                        android:textColor="@color/text_main"
+                        android:background="@drawable/bg_edittext_rounded"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="15dp"
+                        android:layout_marginBottom="20dp"
+                        android:singleLine="true"/>
+                </LinearLayout>
+
+                <!-- 负责人 (仅学校可见) -->
+                <LinearLayout
+                    android:id="@+id/layout_edit_school_principle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="负责人"
+                        android:textColor="@color/text_main"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"/>
+                    <EditText
+                        android:id="@+id/et_edit_school_principle"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:textColorHint="@color/text_hint"
+                        android:textColor="@color/text_main"
+                        android:background="@drawable/bg_edittext_rounded"
+                        android:paddingStart="15dp"
+                        android:paddingEnd="15dp"
+                        android:layout_marginBottom="20dp"
+                        android:singleLine="true"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <Button
+            android:id="@+id/btn_save_profile"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="35dp"
+            android:layout_marginBottom="20dp"
+            android:text="保存修改"
+            android:textColor="@color/bg_white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:stateListAnimator="@null"
+            android:background="@drawable/bg_button_primary" />
+
+    </LinearLayout>
+</ScrollView>

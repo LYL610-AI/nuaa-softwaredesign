@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="4dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/bg_white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 🌟 1. 头部：头像与发布人信息 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- 圆形头像占位 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/primary_blue"
+                android:layout_marginEnd="12dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="友"
+                    android:textColor="@color/bg_white"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- 发布人名称 -->
+            <TextView
+                android:id="@+id/tv_post_user"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="志愿者：王小明"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_main" />
+        </LinearLayout>
+
+        <!-- 🌟 2. 正文内容区（加入最多显示3行的防刷屏保护，并增加行距） -->
+        <TextView
+            android:id="@+id/tv_post_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="今天在大凉山的小学教孩子们画画，他们的笑容是我见过最美的风景。即使条件艰苦，但看到那一双双渴望知识的眼睛，一切都值得了..."
+            android:textSize="15sp"
+            android:textColor="@color/text_main"
+            android:lineSpacingExtra="5dp"
+            android:maxLines="3"
+            android:ellipsize="end" />
+
+        <!-- 帖子缩略图 -->
+        <ImageView
+            android:id="@+id/iv_post_thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:layout_marginTop="8dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
+
+        <!-- 🌟 3. 底部信息区：用极细分割线隔开 -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider_gray"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <!-- 发布时间 -->
+            <TextView
+                android:id="@+id/tv_post_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="2小时前"
+                android:textSize="13sp"
+                android:textColor="@color/text_sub" />
+
+            <!-- 删除按钮（仅在自己的帖子列表中显示） -->
+            <Button
+                android:id="@+id/btn_delete_post"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="50dp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:text="删除"
+                android:textSize="11sp"
+                android:textColor="@color/bg_white"
+                android:background="@drawable/bg_button_danger"
+                android:stateListAnimator="@null"
+                android:visibility="gone"/>
+
+            <!-- 点赞操作 -->
+            <TextView
+                android:id="@+id/tv_post_like"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:text="❤️ 赞"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_sub"
+                android:paddingVertical="4dp"
+                android:paddingStart="16dp" />
+        </RelativeLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
