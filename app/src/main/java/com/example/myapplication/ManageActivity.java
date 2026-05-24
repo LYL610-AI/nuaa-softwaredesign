@@ -56,6 +56,27 @@ public class ManageActivity extends AppCompatActivity {
         });
 
         manageAdapter = new ManageAdapter(registrationList);
+        manageAdapter.setOnItemClickListener((reg, position) -> {
+            String genderText = "未知";
+            if (reg.getGender() != null) {
+                switch (reg.getGender()) {
+                    case "0": genderText = "男"; break;
+                    case "1": genderText = "女"; break;
+                    default: genderText = reg.getGender(); break;
+                }
+            }
+            String detailMsg = "姓名：" + (reg.getRealName() != null ? reg.getRealName() : "未填写")
+                    + "\n手机号：" + (reg.getPhoneNumber() != null ? reg.getPhoneNumber() : "未填写")
+                    + "\n性别：" + genderText
+                    + "\n学历：" + (reg.getDegree() != null ? reg.getDegree() : "未填写")
+                    + "\n自我介绍：" + (reg.getIntroduce() != null && !reg.getIntroduce().isEmpty() ? reg.getIntroduce() : "无")
+                    + "\n\n审核状态：" + (reg.getAuditState() != null ? reg.getAuditState() : "待审核");
+            new androidx.appcompat.app.AlertDialog.Builder(ManageActivity.this)
+                    .setTitle("志愿者报名详情")
+                    .setMessage(detailMsg)
+                    .setPositiveButton("关闭", null)
+                    .show();
+        });
 
         btnBack.setOnClickListener(v -> {
             if (isShowingRegistrations) {

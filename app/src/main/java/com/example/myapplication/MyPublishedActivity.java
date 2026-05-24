@@ -77,6 +77,13 @@ public class MyPublishedActivity extends AppCompatActivity {
             }
 
             @Override
+            public void onView(TeachingActivity activity, int position) {
+                Intent intent = new Intent(MyPublishedActivity.this, DetailActivity.class);
+                intent.putExtra("activity_data", activity);
+                startActivity(intent);
+            }
+
+            @Override
             public void onStart(TeachingActivity activity, int position) {
                 new AlertDialog.Builder(MyPublishedActivity.this)
                         .setTitle("确认开始活动")

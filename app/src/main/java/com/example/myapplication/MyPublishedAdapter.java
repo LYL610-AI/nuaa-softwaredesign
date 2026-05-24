@@ -21,6 +21,7 @@ public class MyPublishedAdapter extends RecyclerView.Adapter<MyPublishedAdapter.
         void onDelete(TeachingActivity activity, int position);
         void onSummary(TeachingActivity activity, int position);
         void onStart(TeachingActivity activity, int position);
+        void onView(TeachingActivity activity, int position);
     }
 
     public MyPublishedAdapter(List<TeachingActivity> list) {
@@ -33,7 +34,7 @@ public class MyPublishedAdapter extends RecyclerView.Adapter<MyPublishedAdapter.
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView title, location, status;
-        Button btnStart, btnSummary, btnEdit, btnDelete;
+        Button btnStart, btnSummary, btnView, btnEdit, btnDelete;
 
         public ViewHolder(View view) {
             super(view);
@@ -42,6 +43,7 @@ public class MyPublishedAdapter extends RecyclerView.Adapter<MyPublishedAdapter.
             status = view.findViewById(R.id.tv_status);
             btnStart = view.findViewById(R.id.btn_start);
             btnSummary = view.findViewById(R.id.btn_summary);
+            btnView = view.findViewById(R.id.btn_view);
             btnEdit = view.findViewById(R.id.btn_edit);
             btnDelete = view.findViewById(R.id.btn_delete);
         }
@@ -74,14 +76,16 @@ public class MyPublishedAdapter extends RecyclerView.Adapter<MyPublishedAdapter.
         else if (isRejected) holder.status.setText("未通过");
         else holder.status.setText(state);
 
-        // 总结按钮：审核已通过、非结束、总结未被审核通过时显示
-        holder.btnSummary.setVisibility((!isPendingAudit && !isRejected && !isEnd && !summaryApproved) ? View.VISIBLE : View.GONE);
+        // 总结按钮：进行中且总结未被审核通过时显示
+        holder.btnSummary.setVisibility(("进行中".equals(state) && !summaryApproved) ? View.VISIBLE : View.GONE);
         // 编辑按钮：仅待审核时显示
         holder.btnEdit.setVisibility(isPendingAudit ? View.VISIBLE : View.GONE);
         // 删除按钮：待审核、未通过或招募中时显示
         holder.btnDelete.setVisibility((isPendingAudit || isRejected || "招募中".equals(state)) ? View.VISIBLE : View.GONE);
         // 开始活动按钮：仅招募中且非待审核时显示
         holder.btnStart.setVisibility(("招募中".equals(state) && !isPendingAudit) ? View.VISIBLE : View.GONE);
+        // 查看按钮：结束时显示
+        holder.btnView.setVisibility(isEnd ? View.VISIBLE : View.GONE);
 
         holder.btnStart.setOnClickListener(v -> {
             if (actionListener != null) {
@@ -92,6 +96,12 @@ public class MyPublishedAdapter extends RecyclerView.Adapter<MyPublishedAdapter.
         holder.btnSummary.setOnClickListener(v -> {
             if (actionListener != null) {
                 actionListener.onSummary(activity, holder.getAdapterPosition());
+            }
+        });
+
+        holder.btnView.setOnClickListener(v -> {
+            if (actionListener != null) {
+                actionListener.onView(activity, holder.getAdapterPosition());
             }
         });
 

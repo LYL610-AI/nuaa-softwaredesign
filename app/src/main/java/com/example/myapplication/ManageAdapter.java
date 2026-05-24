@@ -28,6 +28,15 @@ public class ManageAdapter extends RecyclerView.Adapter<ManageAdapter.ViewHolder
     private List<Registration> applyList;
     private final OkHttpClient client = ApiConfig.getClient();
     private android.content.Context adapterContext;
+    private OnItemClickListener itemClickListener;
+
+    public interface OnItemClickListener {
+        void onItemClick(Registration registration, int position);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.itemClickListener = listener;
+    }
 
     public ManageAdapter(List<Registration> applyList) {
         this.applyList = applyList;
@@ -105,6 +114,15 @@ public class ManageAdapter extends RecyclerView.Adapter<ManageAdapter.ViewHolder
             holder.btnApprove.setEnabled(false);
             holder.btnReject.setEnabled(false);
             auditRegistration(item, "未通过", pos);
+        });
+
+        holder.itemView.setOnClickListener(v -> {
+            if (itemClickListener != null) {
+                int pos = holder.getAdapterPosition();
+                if (pos >= 0 && pos < applyList.size()) {
+                    itemClickListener.onItemClick(applyList.get(pos), pos);
+                }
+            }
         });
     }
 

@@ -121,6 +121,60 @@
                     android:background="@color/divider_gray"
                     android:visibility="gone" />
 
+                <!-- 总结信息 -->
+                <LinearLayout
+                    android:id="@+id/ll_summary_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:layout_marginTop="16dp">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/divider_gray"
+                        android:layout_marginBottom="16dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="活动总结"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_main"
+                        android:textSize="16sp"
+                        android:layout_marginBottom="4dp"/>
+
+                    <TextView
+                        android:id="@+id/tv_detail_summary_audit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="审核状态：待审核"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_sub"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:id="@+id/tv_detail_summary_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="总结标题"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_main"
+                        android:textSize="15sp"
+                        android:layout_marginBottom="6dp"/>
+
+                    <TextView
+                        android:id="@+id/tv_detail_summary_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="总结内容..."
+                        android:textColor="@color/text_main"
+                        android:textSize="14sp"
+                        android:lineSpacingExtra="4dp"/>
+
+                </LinearLayout>
+
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
