@@ -79,6 +79,7 @@ public class SchoolHomeActivity extends AppCompatActivity {
 
         // 6. 退出登录按钮
         findViewById(R.id.btn_school_logout).setOnClickListener(v -> {
+            SessionManager.logout(this);
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);

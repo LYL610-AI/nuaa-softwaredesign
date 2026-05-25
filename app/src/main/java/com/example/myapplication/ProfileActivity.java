@@ -116,6 +116,7 @@ public class ProfileActivity extends AppCompatActivity {
         Button btnLogout = findViewById(R.id.btn_volunteer_logout);
         if (btnLogout != null) {
             btnLogout.setOnClickListener(v -> {
+                SessionManager.logout(this);
                 Intent intent = new Intent(this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);

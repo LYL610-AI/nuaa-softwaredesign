@@ -164,6 +164,7 @@ public class AdminVerifyActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.btn_admin_logout).setOnClickListener(v -> {
+            SessionManager.logout(this);
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
